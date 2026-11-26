@@ -84,7 +84,6 @@
     input:focus, select:focus { outline: none; border-color: var(--blue); background: #fff; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       width: 100%; padding: 12px 14px; border: none; border-radius: 14px;
@@ -94,10 +93,70 @@
     .btn:active { transform: translateY(2px); box-shadow: none !important; }
     .btn-blue { background: var(--blue); color: #fff; box-shadow: 0 3px 0 var(--blue-dark); }
     .btn-green { background: var(--green); color: #fff; box-shadow: 0 3px 0 var(--green-dark); }
-    .btn-red { background: var(--red); color: #fff; box-shadow: 0 3px 0 var(--red-dark); }
     .btn-spotify { background: var(--spotify); color: #fff; box-shadow: 0 3px 0 #15803d; }
     .btn-soft { background: #f1f5f9; color: var(--text); border: 2px solid var(--border); box-shadow: 0 3px 0 var(--border); }
-    .btn-sm { padding: 8px 10px; font-size: 12px; border-radius: 11px; }
+    .btn-sm { padding: 7px 10px; font-size: 11.5px; border-radius: 11px; width: auto; }
+
+    /* Red Neuronal Canvas */
+    .neural-wrap {
+      position: relative;
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      border: 2px solid #dbeafe;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    #neural-canvas {
+      width: 100%;
+      height: 215px;
+      display: block;
+      cursor: pointer;
+    }
+    .neural-log {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--blue-dark);
+      background: #e0f2fe;
+      padding: 7px 12px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Métricas del servidor */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .metric-box {
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .metric-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    .metric-val { font-size: 16px; font-weight: 900; color: var(--text); margin: 3px 0 6px; }
+    .bar-bg { height: 7px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
+
+    .service-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .srv-chip {
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
 
     /* Pomodoro y Modo Estricto */
     .timer-display {
@@ -116,7 +175,7 @@
       margin-bottom: 12px; display: none;
     }
 
-    /* Listas (objetivos, exámenes, tareas) */
+    /* Listas */
     .item-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 12px; border: 2px solid var(--border); border-radius: 14px;
@@ -134,7 +193,6 @@
     .days-badge.urgent { background: #fee2e2; color: #991b1b; }
     .days-badge.soon { background: #fef3c7; color: #92400e; }
 
-    /* Selector días horario */
     .day-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
     .day-tab {
       flex: 1; padding: 8px 4px; border: 2px solid var(--border); border-radius: 12px;
@@ -163,39 +221,85 @@
 
   <div class="header">
     <div>
-      <h1>🤖 Jarvis Assistant</h1>
+      <h1>🤖 Jarvis Core</h1>
       <div style="font-size:12px; color:var(--muted); text-transform:capitalize;" id="today-date"></div>
     </div>
-    <div class="status-dot">● 3r Activo</div>
+    <div class="status-dot">● 158.179.212.5</div>
   </div>
 
-  <!-- PESTAÑA 1: JARVIS COMANDOS -->
+  <!-- PESTAÑA 1: RED NEURONAL + SERVIDOR + LANZADOR -->
   <div id="tab-jarvis" class="tab active">
+
+    <!-- Red Neuronal en vivo -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span class="pill" style="margin:0;">🧠 Red Neuronal Jarvis</span>
+        <button class="btn btn-soft btn-sm" onclick="fireCascade('study')">⚡ Simular Flujo</button>
+      </div>
+      <div class="neural-wrap">
+        <canvas id="neural-canvas"></canvas>
+      </div>
+      <div class="neural-log">
+        <span id="neural-status">Sinapsis en reposo • Toca un nodo o lanza un comando</span>
+        <span id="ping-badge">-- ms</span>
+      </div>
+    </div>
+
+    <!-- Monitor del Servidor Oracle Cloud -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span class="pill" style="margin:0; background:#dcfce7; color:#15803d;">🖥️ Servidor Oracle Ubuntu</span>
+        <button class="btn btn-soft btn-sm" onclick="measurePing()">🔄 Test Red</button>
+      </div>
+
+      <div class="service-row">
+        <span class="srv-chip">● jarvis.service</span>
+        <span class="srv-chip">● ChromaDB 3r</span>
+        <span class="srv-chip">● Drive Sync 15m</span>
+        <span class="srv-chip">● Gemini 2.5</span>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="metric-label">CPU (ARM64)</div>
+          <div class="metric-val" id="m-cpu">14%</div>
+          <div class="bar-bg"><div class="bar-fill" id="b-cpu" style="width:14%; background:#22c55e;"></div></div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">RAM Usada</div>
+          <div class="metric-val" id="m-ram">1.4 / 6 GB</div>
+          <div class="bar-bg"><div class="bar-fill" id="b-ram" style="width:23%; background:#0ea5e9;"></div></div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Disco SSD</div>
+          <div class="metric-val" id="m-disk">18.2 / 46 GB</div>
+          <div class="bar-bg"><div class="bar-fill" id="b-disk" style="width:39%; background:#8b5cf6;"></div></div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Latencia API</div>
+          <div class="metric-val" id="m-lat">-- ms</div>
+          <div class="bar-bg"><div class="bar-fill" id="b-lat" style="width:20%; background:#f59e0b;"></div></div>
+        </div>
+      </div>
+
+      <button class="btn btn-soft" onclick="triggerCmd('/estado', 'server')">📡 Copiar /estado para pedir métricas reales al bot</button>
+    </div>
+
+    <!-- Lanzador de Estudio 3r -->
     <div class="card">
       <span class="pill">📚 Estudio 3r • Apuntes Drive</span>
       <h2>Lanzador Rápido de Estudio</h2>
-      <p class="desc">Escribe un tema de tus apuntes de 3º y copia el comando listo para enviárselo a Jarvis:</p>
       <input type="text" id="study-topic" placeholder="Ej: Fotosíntesis C4, Inmunidad innata, ANOVA..." />
       <div class="grid-2">
-        <button class="btn btn-blue" onclick="triggerCmd('/repaso')">⚡ Repaso Exprés</button>
-        <button class="btn btn-green" onclick="triggerCmd('/test')">📝 Test Examen</button>
+        <button class="btn btn-blue" onclick="triggerCmd('/repaso', 'study')">⚡ Repaso Exprés</button>
+        <button class="btn btn-green" onclick="triggerCmd('/test', 'study')">📝 Test Examen</button>
       </div>
       <div style="height:10px;"></div>
       <div class="grid-2">
-        <button class="btn btn-soft" onclick="triggerCmd('/nuevo')">🗂️ Esquema Tema</button>
-        <button class="btn btn-soft" onclick="triggerCmd('/start')">📊 Estado Memoria</button>
+        <button class="btn btn-soft" onclick="triggerCmd('/nuevo', 'drive')">🗂️ Esquema Tema</button>
+        <button class="btn btn-soft" onclick="triggerCmd('/start', 'server')">📊 Bloques 3r</button>
       </div>
       <div id="cmd-feedback" style="margin-top:10px; font-size:13px; font-weight:800; color:var(--blue-dark); display:none;"></div>
-    </div>
-
-    <div class="card">
-      <span class="pill">⚡ Prompts Rápidos</span>
-      <h2>Atajos de Asistente</h2>
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <button class="btn btn-soft" style="justify-content:flex-start;" onclick="copyText('Hazme 5 preguntas tipo examen de los últimos apuntes subidos a 3r')">🎯 5 preguntas de los últimos apuntes</button>
-        <button class="btn btn-soft" style="justify-content:flex-start;" onclick="copyText('Revisa mi agenda de hoy y dime qué entregas o eventos tengo')">📅 Revisar agenda y correos de hoy</button>
-        <button class="btn btn-soft" style="justify-content:flex-start;" onclick="copyText('Resume los conceptos clave y fórmulas más importantes de: ')">🧬 Resumen rápido de fórmulas y conceptos</button>
-      </div>
     </div>
   </div>
 
@@ -257,7 +361,6 @@
 
   <!-- PESTAÑA 3: CUENTA ATRÁS EXÁMENES + HORARIO + TAREAS -->
   <div id="tab-agenda" class="tab">
-    <!-- Cuenta atrás de exámenes -->
     <div class="card">
       <span class="pill" style="background:#fef3c7; color:#92400e;">⏳ Cuenta Atrás Exámenes / Entregas</span>
       <div class="grid-2">
@@ -268,7 +371,6 @@
       <div id="exam-list" style="margin-top:12px;"></div>
     </div>
 
-    <!-- Horario semanal -->
     <div class="card">
       <span class="pill">🗓️ Horario Semanal</span>
       <div class="day-tabs" id="day-tabs">
@@ -285,7 +387,6 @@
       <div id="sched-list" style="margin-top:10px;"></div>
     </div>
 
-    <!-- Tareas rápidas -->
     <div class="card">
       <span class="pill">✅ Tareas Pendientes</span>
       <input type="text" id="task-input" placeholder="Nueva tarea..." />
@@ -304,7 +405,7 @@
 
   <!-- Barra de navegación inferior -->
   <div class="nav">
-    <button class="nav-btn active" onclick="switchTab('jarvis', this)"><span style="font-size:18px;">🤖</span>Jarvis</button>
+    <button class="nav-btn active" onclick="switchTab('jarvis', this)"><span style="font-size:18px;">🧠</span>Jarvis</button>
     <button class="nav-btn" onclick="switchTab('focus', this)"><span style="font-size:18px;">🎧</span>Enfoque</button>
     <button class="nav-btn" onclick="switchTab('agenda', this)"><span style="font-size:18px;">📅</span>Agenda</button>
   </div>
@@ -322,12 +423,176 @@
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
     document.getElementById("tab-" + name).classList.add("active");
     el.classList.add("active");
+    if (name === "jarvis") resizeCanvas();
   }
 
-  /* --- 1. COMANDOS JARVIS --- */
-  function triggerCmd(cmd) {
+  /* --- RED NEURONAL INTERACTIVA --- */
+  const canvas = document.getElementById("neural-canvas");
+  const ctx = canvas.getContext("2d");
+  let W = 320, H = 215;
+
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = rect.width || 320;
+    H = 215;
+    canvas.width = W * 2;
+    canvas.height = H * 2;
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  const nodes = [
+    { id: "tg", label: "Telegram", rx: 0.14, ry: 0.50, color: "#0ea5e9", r: 18, pulse: 0, info: "Entrada Telegram Bot API" },
+    { id: "core", label: "Jarvis Core", rx: 0.42, ry: 0.50, color: "#6366f1", r: 22, pulse: 0, info: "Orquestador Python (Oracle ARM64)" },
+    { id: "llm", label: "Gemini AI", rx: 0.72, ry: 0.24, color: "#8b5cf6", r: 18, pulse: 0, info: "Motor Razonamiento & Multimodal" },
+    { id: "chroma", label: "ChromaDB 3r", rx: 0.72, ry: 0.76, color: "#22c55e", r: 18, pulse: 0, info: "Memoria Vectorial Apuntes 3r" },
+    { id: "drive", label: "Drive Sync", rx: 0.90, ry: 0.50, color: "#f59e0b", r: 16, pulse: 0, info: "Sincronización PDF/GoodNotes 15m" },
+    { id: "tools", label: "Gmail/Cal", rx: 0.42, ry: 0.16, color: "#ec4899", r: 15, pulse: 0, info: "Google Workspace & Spotify" }
+  ];
+
+  const links = [
+    ["tg", "core"], ["core", "llm"], ["core", "chroma"],
+    ["chroma", "drive"], ["llm", "chroma"], ["core", "tools"], ["llm", "tools"]
+  ];
+
+  let signals = [];
+
+  function spawnSignal(fromId, toId, color = "#0ea5e9") {
+    const a = nodes.find(n => n.id === fromId);
+    const b = nodes.find(n => n.id === toId);
+    if (a && b) {
+      a.pulse = 1;
+      signals.push({ a, b, t: 0, speed: 0.032, color });
+    }
+  }
+
+  function fireCascade(mode) {
+    const statusEl = document.getElementById("neural-status");
+    if (mode === "study") {
+      statusEl.textContent = "⚡ Consultando ChromaDB 3r → Gemini AI...";
+      spawnSignal("tg", "core", "#0ea5e9");
+      setTimeout(() => spawnSignal("core", "chroma", "#22c55e"), 320);
+      setTimeout(() => spawnSignal("chroma", "llm", "#8b5cf6"), 650);
+      setTimeout(() => spawnSignal("llm", "core", "#6366f1"), 980);
+      setTimeout(() => spawnSignal("core", "tg", "#22c55e"), 1300);
+    } else if (mode === "drive") {
+      statusEl.textContent = "🔄 Sincronizando Drive 3r → ChromaDB...";
+      spawnSignal("drive", "chroma", "#f59e0b");
+      setTimeout(() => spawnSignal("chroma", "core", "#22c55e"), 350);
+      setTimeout(() => spawnSignal("core", "tg", "#0ea5e9"), 700);
+    } else {
+      statusEl.textContent = "🖥️ Leyendo telemetría Oracle Cloud...";
+      spawnSignal("tg", "core", "#0ea5e9");
+      setTimeout(() => spawnSignal("core", "tools", "#ec4899"), 300);
+      setTimeout(() => spawnSignal("core", "tg", "#22c55e"), 650);
+    }
+  }
+
+  canvas.addEventListener("click", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    nodes.forEach(n => {
+      const nx = n.rx * W, ny = n.ry * H;
+      if (Math.hypot(mx - nx, my - ny) <= n.r + 8) {
+        n.pulse = 1;
+        document.getElementById("neural-status").textContent = `● ${n.label}: ${n.info}`;
+        links.forEach(([u, v]) => {
+          if (u === n.id) spawnSignal(u, v, n.color);
+          if (v === n.id) spawnSignal(v, u, n.color);
+        });
+      }
+    });
+  });
+
+  // Pulso autónomo suave cada 3.5s
+  setInterval(() => {
+    const pair = links[Math.floor(Math.random() * links.length)];
+    spawnSignal(pair[0], pair[1], "#38bdf8");
+  }, 3500);
+
+  function drawNeural() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Conexiones
+    links.forEach(([u, v]) => {
+      const a = nodes.find(n => n.id === u);
+      const b = nodes.find(n => n.id === v);
+      ctx.beginPath();
+      ctx.moveTo(a.rx * W, a.ry * H);
+      ctx.lineTo(b.rx * W, b.ry * H);
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    // Señales viajando
+    signals = signals.filter(s => s.t <= 1);
+    signals.forEach(s => {
+      const x = (s.a.rx + (s.b.rx - s.a.rx) * s.t) * W;
+      const y = (s.a.ry + (s.b.ry - s.a.ry) * s.t) * H;
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+      ctx.fill();
+      s.t += s.speed;
+      if (s.t >= 1) s.b.pulse = 1;
+    });
+
+    // Nodos
+    nodes.forEach(n => {
+      const x = n.rx * W, y = n.ry * H;
+      if (n.pulse > 0) {
+        ctx.beginPath();
+        ctx.arc(x, y, n.r + (1 - n.pulse) * 14, 0, Math.PI * 2);
+        ctx.strokeStyle = n.color;
+        ctx.globalAlpha = n.pulse * 0.5;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        n.pulse = Math.max(0, n.pulse - 0.03);
+      }
+
+      ctx.beginPath();
+      ctx.arc(x, y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = n.color;
+      ctx.stroke();
+
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "800 10.5px -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(n.label, x, y + n.r + 13);
+    });
+
+    requestAnimationFrame(drawNeural);
+  }
+  drawNeural();
+
+  /* --- TELEMETRÍA Y LATENCIA --- */
+  async function measurePing() {
+    const t0 = performance.now();
+    try {
+      await fetch("https://davadunga.github.io/jarvis-hub/?t=" + Date.now(), { mode: "no-cors" });
+      const ms = Math.round(performance.now() - t0);
+      document.getElementById("ping-badge").textContent = `${ms} ms`;
+      document.getElementById("m-lat").textContent = `${ms} ms`;
+      document.getElementById("b-lat").style.width = `${Math.min(100, Math.max(10, ms / 4))}%`;
+      fireCascade("server");
+    } catch (e) {
+      document.getElementById("ping-badge").textContent = "Offline";
+    }
+  }
+  measurePing();
+
+  /* --- COMANDOS JARVIS --- */
+  function triggerCmd(cmd, flow = "study") {
+    fireCascade(flow);
     const topic = document.getElementById("study-topic").value.trim();
-    copyText(topic ? `${cmd} ${topic}` : cmd);
+    copyText(topic && cmd !== "/estado" && cmd !== "/start" ? `${cmd} ${topic}` : cmd);
   }
   function copyText(txt) {
     navigator.clipboard?.writeText(txt);
@@ -337,7 +602,7 @@
     if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
   }
 
-  /* --- 2. POMODORO + MODO ESTRICTO + SPOTIFY --- */
+  /* --- POMODORO + MODO ESTRICTO + SPOTIFY --- */
   let baseMins = 25, secs = 25 * 60, timerInt = null;
   const todayKey = new Date().toISOString().slice(0, 10);
   let focusMins = Number(localStorage.getItem("jarvis_focus_" + todayKey) || 0);
@@ -353,31 +618,24 @@
 
   function setDuration(m) {
     if (timerInt) return;
-    baseMins = m;
-    secs = m * 60;
-    updateTimerUI();
+    baseMins = m; secs = m * 60; updateTimerUI();
   }
-
   function updateTimerUI() {
     const m = String(Math.floor(secs / 60)).padStart(2, "0");
     const s = String(secs % 60).padStart(2, "0");
     document.getElementById("timer-display").textContent = `${m}:${s}`;
   }
-
   function playBell() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(528, ctx.currentTime);
-      g.gain.setValueAtTime(0.3, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-      osc.connect(g); g.connect(ctx.destination);
-      osc.start(); osc.stop(ctx.currentTime + 1.2);
+      const c = new (window.AudioContext || window.webkitAudioContext)();
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(528, c.currentTime);
+      g.gain.setValueAtTime(0.3, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.2);
+      o.connect(g); g.connect(c.destination);
+      o.start(); o.stop(c.currentTime + 1.2);
     } catch(e) {}
   }
-
   function toggleTimer() {
     const btn = document.getElementById("btn-timer");
     document.getElementById("strict-alert").style.display = "none";
@@ -392,8 +650,7 @@
       }
       timerInt = setInterval(() => {
         if (secs > 0) {
-          secs--;
-          updateTimerUI();
+          secs--; updateTimerUI();
           if (secs % 60 === 0) {
             focusMins++;
             localStorage.setItem("jarvis_focus_" + todayKey, focusMins);
@@ -409,22 +666,18 @@
       }, 1000);
     }
   }
-
   function resetTimer() {
     clearInterval(timerInt); timerInt = null;
     if (tg?.disableClosingConfirmation) tg.disableClosingConfirmation();
-    secs = baseMins * 60;
-    updateTimerUI();
+    secs = baseMins * 60; updateTimerUI();
     document.getElementById("btn-timer").textContent = "▶️ Iniciar";
   }
 
-  // Detección de salida del móvil en Modo Estricto
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && timerInt && document.getElementById("strict-toggle").checked) {
       clearInterval(timerInt); timerInt = null;
       if (tg?.disableClosingConfirmation) tg.disableClosingConfirmation();
-      secs = baseMins * 60;
-      updateTimerUI();
+      secs = baseMins * 60; updateTimerUI();
       document.getElementById("btn-timer").textContent = "▶️ Iniciar";
       strictFails++;
       localStorage.setItem("jarvis_fails_" + todayKey, strictFails);
@@ -433,7 +686,7 @@
     }
   });
 
-  // Micro-objetivos de sesión
+  // Micro-objetivos
   let goals = JSON.parse(localStorage.getItem("jarvis_goals") || "[]");
   function renderGoals() {
     localStorage.setItem("jarvis_goals", JSON.stringify(goals));
@@ -457,7 +710,7 @@
   function delGoal(i) { goals.splice(i, 1); renderGoals(); }
   renderGoals();
 
-  // Spotify Embed
+  // Spotify
   function loadSpotifyIframe(rawUrl) {
     if (!rawUrl) return;
     const match = rawUrl.match(/open\.spotify\.com\/(playlist|album|track)\/([a-zA-Z0-9]+)/);
@@ -480,7 +733,7 @@
     loadSpotifyIframe(savedSpot);
   }
 
-  /* --- 3. AGENDA: CUENTA ATRÁS + HORARIO + TAREAS --- */
+  /* --- AGENDA: CUENTA ATRÁS + HORARIO + TAREAS --- */
   let exams = JSON.parse(localStorage.getItem("jarvis_exams") || "[]");
   function renderExams() {
     exams.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -517,7 +770,6 @@
   function delExam(i) { exams.splice(i, 1); renderExams(); }
   renderExams();
 
-  // Horario semanal
   let currentDay = "Lun";
   let schedule = JSON.parse(localStorage.getItem("jarvis_sched") || '{"Lun":[],"Mar":[],"Mié":[],"Jue":[],"Vie":[]}');
   function selectDay(day, el) {
@@ -548,7 +800,6 @@
   function delSched(i) { schedule[currentDay].splice(i, 1); renderSched(); }
   renderSched();
 
-  // Tareas
   let tasks = JSON.parse(localStorage.getItem("jarvis_tasks") || "[]");
   function renderTasks() {
     localStorage.setItem("jarvis_tasks", JSON.stringify(tasks));
