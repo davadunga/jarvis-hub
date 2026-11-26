@@ -3,827 +3,1110 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Jarvis Assistant Hub</title>
+  <title>Jarvis — Neural Workspace</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg: #f4f7fb;
-      --card: #ffffff;
-      --border: #e2e8f0;
-      --text: #0f172a;
-      --muted: #64748b;
-      --blue: #0ea5e9;
-      --blue-dark: #0284c7;
-      --green: #22c55e;
-      --green-dark: #16a34a;
-      --amber: #f59e0b;
-      --red: #ef4444;
-      --red-dark: #dc2626;
+      --bg: #0c1624;
+      --bg-elevated: #122033;
+      --bg-subtle: #172840;
+      --border: rgba(148, 163, 184, 0.16);
+      --border-active: rgba(190, 242, 100, 0.45);
+      --text: #f1f5f9;
+      --text-soft: #94a3b8;
+      --cyan: #38bdf8;
+      --lime: #bef264;
+      --teal: #2dd4bf;
+      --danger: #fb7185;
       --spotify: #1db954;
     }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
       color: var(--text);
-      padding: 14px;
-      padding-bottom: 86px;
+      padding: 18px 16px 92px;
+      line-height: 1.5;
+      overflow-x: hidden;
     }
-    .header {
+
+    /* Trazos de luz orgánicos de fondo */
+    .ambient-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.45;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* Cabecera editorial */
+    header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 18px;
-      padding: 12px 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 3px 0 var(--border);
+      align-items: flex-end;
+      padding-bottom: 16px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
     }
-    .header h1 { margin: 0; font-size: 18px; font-weight: 800; }
-    .status-dot {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 800; color: var(--green-dark);
-      background: #dcfce7; padding: 5px 10px; border-radius: 99px;
-    }
-    .card {
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 0 var(--border);
-    }
-    .pill {
-      display: inline-block;
-      background: #e0f2fe;
-      color: var(--blue-dark);
+
+    .brand-eyebrow {
       font-size: 11px;
-      font-weight: 800;
-      padding: 4px 10px;
-      border-radius: 99px;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      color: var(--cyan);
+      font-weight: 600;
+      margin-bottom: 4px;
     }
-    h2 { margin: 0 0 8px; font-size: 17px; font-weight: 800; }
-    p.desc { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; line-height: 1.4; }
 
-    input, select {
-      width: 100%;
-      padding: 11px 13px;
-      border: 2px solid var(--border);
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11.5px;
+      color: var(--lime);
+      background: rgba(190, 242, 100, 0.08);
+      border: 1px solid rgba(190, 242, 100, 0.25);
+      padding: 5px 11px;
+      border-radius: 99px;
+      font-weight: 500;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 8px var(--lime);
+    }
+
+    /* Bloques / Secciones */
+    .section {
+      background: rgba(18, 32, 51, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+
+    .lead {
+      margin: 0 0 14px;
+      font-size: 13px;
+      color: var(--text-soft);
+      font-weight: 400;
+    }
+
+    /* Red Neuronal Didáctica */
+    .nn-stage {
+      background: #09121e;
+      border: 1px solid var(--border);
       border-radius: 14px;
-      font-size: 14px;
-      font-family: inherit;
-      margin-bottom: 10px;
-      background: #f8fafc;
-      color: var(--text);
+      padding: 10px 6px 8px;
+      margin-bottom: 12px;
     }
-    input:focus, select:focus { outline: none; border-color: var(--blue); background: #fff; }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      width: 100%; padding: 12px 14px; border: none; border-radius: 14px;
-      font-size: 13.5px; font-weight: 800; cursor: pointer;
-      transition: transform 0.08s;
-    }
-    .btn:active { transform: translateY(2px); box-shadow: none !important; }
-    .btn-blue { background: var(--blue); color: #fff; box-shadow: 0 3px 0 var(--blue-dark); }
-    .btn-green { background: var(--green); color: #fff; box-shadow: 0 3px 0 var(--green-dark); }
-    .btn-spotify { background: var(--spotify); color: #fff; box-shadow: 0 3px 0 #15803d; }
-    .btn-soft { background: #f1f5f9; color: var(--text); border: 2px solid var(--border); box-shadow: 0 3px 0 var(--border); }
-    .btn-sm { padding: 7px 10px; font-size: 11.5px; border-radius: 11px; width: auto; }
-
-    /* Red Neuronal Canvas */
-    .neural-wrap {
-      position: relative;
-      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
-      border: 2px solid #dbeafe;
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-    #neural-canvas {
+    #nn-canvas {
       width: 100%;
-      height: 215px;
+      height: 220px;
       display: block;
       cursor: pointer;
     }
-    .neural-log {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--blue-dark);
-      background: #e0f2fe;
-      padding: 7px 12px;
-      border-radius: 12px;
+
+    .layer-captions {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      text-align: center;
+      padding: 6px 4px 2px;
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      margin-top: 4px;
+    }
+
+    .layer-cap strong {
+      display: block;
+      font-size: 10.5px;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .layer-cap span {
+      display: block;
+      font-size: 9.5px;
+      color: var(--text-soft);
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+
+    .nn-caption-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 12px;
+      color: var(--text-soft);
+      padding-top: 4px;
     }
 
-    /* Métricas del servidor */
-    .metric-grid {
+    /* Parámetros del servidor */
+    .telemetry-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
-    .metric-box {
-      background: #f8fafc;
-      border: 2px solid var(--border);
-      border-radius: 14px;
-      padding: 10px 12px;
-    }
-    .metric-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
-    .metric-val { font-size: 16px; font-weight: 900; color: var(--text); margin: 3px 0 6px; }
-    .bar-bg { height: 7px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
 
-    .service-row {
+    .tele-item {
+      background: rgba(12, 22, 36, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+    }
+
+    .tele-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .tele-val {
+      color: #ffffff;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .track {
+      height: 4px;
+      background: rgba(148, 163, 184, 0.15);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s ease;
+    }
+
+    .daemons {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .daemon-tag {
+      font-size: 11px;
+      color: var(--teal);
+      background: rgba(45, 212, 191, 0.08);
+      border: 1px solid rgba(45, 212, 191, 0.22);
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    /* Inputs y Botones limpios */
+    input, select {
+      width: 100%;
+      padding: 11px 13px;
+      background: rgba(12, 22, 36, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-family: inherit;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+
+    input::placeholder { color: #64748b; }
+    input:focus, select:focus { outline: none; border-color: var(--cyan); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text);
+      transition: all 0.18s ease;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .btn-lime {
+      background: rgba(190, 242, 100, 0.14);
+      border-color: rgba(190, 242, 100, 0.45);
+      color: var(--lime);
+      font-weight: 600;
+    }
+
+    .btn-spotify {
+      background: rgba(29, 185, 84, 0.16);
+      border-color: rgba(29, 185, 84, 0.45);
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      padding: 5px 10px;
+      font-size: 11.5px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    /* Pomodoro */
+    .clock {
+      font-size: 52px;
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      color: #ffffff;
+      margin: 8px 0 14px;
+    }
+
+    .strict-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 13px;
+      border-radius: 12px;
+      background: rgba(251, 113, 133, 0.06);
+      border: 1px solid rgba(251, 113, 133, 0.22);
+      margin-bottom: 12px;
+    }
+
+    .strict-warning {
+      background: rgba(251, 113, 133, 0.14);
+      border: 1px solid rgba(251, 113, 133, 0.45);
+      color: #fecdd3;
+      padding: 11px 13px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    /* Filas de listas */
+    .row-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 11px;
+      background: rgba(12, 22, 36, 0.55);
+      border: 1px solid var(--border);
+      margin-bottom: 7px;
+      font-size: 13px;
+      gap: 8px;
+    }
+
+    .row-item.done { opacity: 0.45; text-decoration: line-through; }
+
+    .badge-soft {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--cyan);
+      white-space: nowrap;
+    }
+
+    .badge-lime {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: rgba(190, 242, 100, 0.12);
+      color: var(--lime);
+      white-space: nowrap;
+    }
+
+    .badge-danger {
+      background: rgba(251, 113, 133, 0.15);
+      color: var(--danger);
+    }
+
+    .days-bar {
+      display: flex;
+      gap: 6px;
       margin-bottom: 10px;
     }
-    .srv-chip {
+
+    .day-pill {
+      flex: 1;
+      text-align: center;
+      padding: 7px 0;
+      font-size: 12px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      cursor: pointer;
+    }
+
+    .day-pill.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--cyan);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Navegación inferior minimalista */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(12, 22, 36, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 9px 8px;
+      z-index: 30;
+    }
+
+    .nav-tab {
+      background: none;
+      border: none;
+      color: var(--text-soft);
       font-size: 11.5px;
-      font-weight: 800;
-      padding: 4px 10px;
+      font-weight: 500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 5px 16px;
       border-radius: 10px;
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
     }
 
-    /* Pomodoro y Modo Estricto */
-    .timer-display {
-      font-size: 48px; font-weight: 900; text-align: center;
-      font-variant-numeric: tabular-nums; margin: 6px 0 12px; color: var(--text);
-    }
-    .strict-box {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #fef2f2; border: 2px solid #fecaca; border-radius: 14px;
-      padding: 10px 14px; margin-bottom: 12px;
-    }
-    .strict-box.active { background: #fee2e2; border-color: var(--red); }
-    .alert-banner {
-      background: #fee2e2; border: 2px solid var(--red); color: #991b1b;
-      padding: 12px; border-radius: 14px; font-size: 13.5px; font-weight: 700;
-      margin-bottom: 12px; display: none;
+    .nav-tab.active {
+      color: var(--lime);
+      background: rgba(190, 242, 100, 0.08);
     }
 
-    /* Listas */
-    .item-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 12px; border: 2px solid var(--border); border-radius: 14px;
-      margin-bottom: 8px; background: #fff; gap: 8px;
-    }
-    .item-row.done { opacity: 0.55; text-decoration: line-through; background: #f8fafc; }
-    .tag {
-      font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 8px;
-      background: #e0f2fe; color: var(--blue-dark); white-space: nowrap;
-    }
-    .days-badge {
-      font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 10px;
-      background: #dcfce7; color: #166534; white-space: nowrap;
-    }
-    .days-badge.urgent { background: #fee2e2; color: #991b1b; }
-    .days-badge.soon { background: #fef3c7; color: #92400e; }
-
-    .day-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
-    .day-tab {
-      flex: 1; padding: 8px 4px; border: 2px solid var(--border); border-radius: 12px;
-      background: #f8fafc; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center;
-    }
-    .day-tab.active { background: var(--blue); color: #fff; border-color: var(--blue-dark); }
-
-    /* Navegación inferior */
-    .nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #ffffff; border-top: 2px solid var(--border);
-      display: flex; justify-content: space-around; padding: 8px 6px;
-      z-index: 20;
-    }
-    .nav-btn {
-      background: none; border: none; font-size: 11.5px; font-weight: 800;
-      color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px;
-      cursor: pointer; padding: 5px 14px; border-radius: 12px;
-    }
-    .nav-btn.active { color: var(--blue-dark); background: #e0f2fe; }
-    .tab { display: none; }
-    .tab.active { display: block; }
+    .view { display: none; }
+    .view.active { display: block; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <div>
-      <h1>🤖 Jarvis Core</h1>
-      <div style="font-size:12px; color:var(--muted); text-transform:capitalize;" id="today-date"></div>
+  <!-- Trazos luminosos orgánicos de fondo -->
+  <canvas id="ambient-canvas" class="ambient-canvas"></canvas>
+
+  <div class="container">
+    <header>
+      <div>
+        <div class="brand-eyebrow">Neural Personal Assistant</div>
+        <h1>Jarvis Architecture</h1>
+      </div>
+      <div class="live-pill">
+        <span class="live-dot"></span>
+        <span>158.179.212.5</span>
+      </div>
+    </header>
+
+    <!-- VISTA 1: ARQUITECTURA NEURONAL + SERVIDOR + ACCIONES -->
+    <div id="view-jarvis" class="view active">
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Flujo Sináptico en Tiempo Real</h2>
+          <button class="btn btn-ghost" onclick="propagateSignal('study')">Propagar señal</button>
+        </div>
+        <p class="lead">Cada consulta atraviesa cinco capas de procesamiento: las neuronas activadas (<strong style="color:var(--lime);">1</strong>) transmiten contexto hacia la respuesta final.</p>
+
+        <div class="nn-stage">
+          <canvas id="nn-canvas"></canvas>
+          <div class="layer-captions">
+            <div class="layer-cap"><strong>Layer 1</strong><span>Input Telegram</span></div>
+            <div class="layer-cap"><strong>L2</strong><span>Intención detectada</span></div>
+            <div class="layer-cap"><strong>L3</strong><span>ChromaDB 3r</span></div>
+            <div class="layer-cap"><strong>L4</strong><span>Síntesis Gemini</span></div>
+            <div class="layer-cap"><strong>L5</strong><span>Acción / Respuesta</span></div>
+          </div>
+        </div>
+
+        <div class="nn-caption-bar">
+          <span id="nn-status">Estado: esperando entrada de usuario</span>
+          <span id="ping-text" style="color:var(--lime); font-variant-numeric:tabular-nums;">-- ms</span>
+        </div>
+      </div>
+
+      <!-- Telemetría Servidor -->
+      <div class="section">
+        <div class="section-head">
+          <h2>Estado del Nodo Oracle Cloud</h2>
+          <button class="btn btn-ghost" onclick="checkLatency()">Medir latencia</button>
+        </div>
+        <p class="lead">Instancia Ubuntu ARM64 corriendo servicios aislados de memoria y sincronización.</p>
+
+        <div class="daemons">
+          <span class="daemon-tag">jarvis.service · activo</span>
+          <span class="daemon-tag">ChromaDB · 3r indexado</span>
+          <span class="daemon-tag">Drive Sync · 15m</span>
+        </div>
+
+        <div class="telemetry-grid">
+          <div class="tele-item">
+            <div class="tele-top"><span>Carga CPU</span><span class="tele-val" id="val-cpu">14%</span></div>
+            <div class="track"><div class="fill" style="width:14%; background:var(--cyan);"></div></div>
+          </div>
+          <div class="tele-item">
+            <div class="tele-top"><span>Memoria RAM</span><span class="tele-val">1.4 / 6 GB</span></div>
+            <div class="track"><div class="fill" style="width:23%; background:var(--teal);"></div></div>
+          </div>
+          <div class="tele-item">
+            <div class="tele-top"><span>Almacenamiento</span><span class="tele-val">18.2 / 46 GB</span></div>
+            <div class="track"><div class="fill" style="width:39%; background:#818cf8;"></div></div>
+          </div>
+          <div class="tele-item">
+            <div class="tele-top"><span>Latencia Red</span><span class="tele-val" id="val-lat">-- ms</span></div>
+            <div class="track"><div class="fill" id="bar-lat" style="width:22%; background:var(--lime);"></div></div>
+          </div>
+        </div>
+
+        <button class="btn" onclick="sendToBot('/estado', 'server')">Solicitar telemetría en vivo a Jarvis</button>
+      </div>
+
+      <!-- Lanzador de Estudio -->
+      <div class="section">
+        <div class="section-head">
+          <h2>Consulta sobre Apuntes (3r)</h2>
+        </div>
+        <p class="lead">Introduce un concepto o tema para activar la búsqueda vectorial sobre tus PDFs de Drive.</p>
+        <input type="text" id="topic-input" placeholder="Ej: Fotosíntesis C4, Inmunidad innata, ANOVA..." />
+        <div class="grid-2">
+          <button class="btn btn-primary" onclick="sendToBot('/repaso', 'study')">Repaso exprés</button>
+          <button class="btn btn-lime" onclick="sendToBot('/test', 'study')">Generar test</button>
+        </div>
+        <div style="height:8px;"></div>
+        <div class="grid-2">
+          <button class="btn" onclick="sendToBot('/nuevo', 'drive')">Esquema del tema</button>
+          <button class="btn" onclick="sendToBot('/start', 'server')">Ver bloques indexados</button>
+        </div>
+        <div id="action-toast" style="margin-top:10px; font-size:12.5px; color:var(--lime); display:none;"></div>
+      </div>
+
     </div>
-    <div class="status-dot">● 158.179.212.5</div>
+
+    <!-- VISTA 2: ENFOQUE PROFUNDO + SPOTIFY -->
+    <div id="view-focus" class="view">
+      <div id="strict-banner" class="strict-warning">
+        Has abandonado la ventana de enfoque. El bloque en modo estricto se ha reiniciado.
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Bloque de Concentración</h2>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-ghost" onclick="setMins(25)">25 min</button>
+            <button class="btn btn-ghost" onclick="setMins(50)">50 min</button>
+          </div>
+        </div>
+
+        <div class="clock" id="clock-display">25:00</div>
+
+        <div class="strict-row">
+          <div>
+            <div style="font-size:13px; font-weight:600; color:#fda4af;">Modo estricto anti-distracción</div>
+            <div style="font-size:11.5px; color:var(--text-soft);">Cancela la sesión si cambias de aplicación</div>
+          </div>
+          <input type="checkbox" id="strict-check" checked style="width:18px; height:18px; margin:0; accent-color:var(--danger);" />
+        </div>
+
+        <div class="grid-2">
+          <button class="btn btn-lime" id="btn-clock" onclick="toggleClock()">Iniciar sesión</button>
+          <button class="btn" onclick="resetClock()">Reiniciar</button>
+        </div>
+
+        <div style="text-align:center; font-size:12px; color:var(--text-soft); margin-top:12px;">
+          Tiempo enfocado hoy: <strong style="color:#fff;" id="focused-today">0</strong> min · Interrupciones: <strong style="color:var(--danger);" id="fails-today">0</strong>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Objetivos de la Sesión</h2>
+        </div>
+        <p class="lead">Define 2 o 3 metas concretas antes de iniciar el temporizador.</p>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="goal-in" placeholder="Ej: Terminar análisis en RStudio..." style="margin:0;" />
+          <button class="btn btn-primary" style="width:auto; padding:0 16px;" onclick="addGoal()">+</button>
+        </div>
+        <div id="goals-box" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Playlist de Estudio (Spotify)</h2>
+        </div>
+        <p class="lead">Vincula tu lista de reproducción para escuchar música sin salir del entorno.</p>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <input type="text" id="spot-in" placeholder="https://open.spotify.com/playlist/..." style="margin:0;" />
+          <button class="btn btn-spotify" style="width:auto; padding:0 14px;" onclick="saveSpotify()">Cargar</button>
+        </div>
+        <div id="spot-frame"></div>
+      </div>
+    </div>
+
+    <!-- VISTA 3: AGENDA, EXÁMENES Y TAREAS -->
+    <div id="view-agenda" class="view">
+      <div class="section">
+        <div class="section-head">
+          <h2>Próximos Exámenes y Entregas</h2>
+        </div>
+        <div class="grid-2">
+          <input type="text" id="ex-name" placeholder="Asignatura o entrega" />
+          <input type="date" id="ex-date" />
+        </div>
+        <button class="btn btn-primary" onclick="addExam()">Añadir fecha</button>
+        <div id="exams-box" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Horario Semanal</h2>
+        </div>
+        <div class="days-bar">
+          <div class="day-pill active" onclick="pickDay('Lun', this)">Lun</div>
+          <div class="day-pill" onclick="pickDay('Mar', this)">Mar</div>
+          <div class="day-pill" onclick="pickDay('Mié', this)">Mié</div>
+          <div class="day-pill" onclick="pickDay('Jue', this)">Jue</div>
+          <div class="day-pill" onclick="pickDay('Vie', this)">Vie</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="sch-in" placeholder="Ej: 09:00 Laboratorio Fisiología" style="margin:0;" />
+          <button class="btn btn-lime" style="width:auto; padding:0 16px;" onclick="addSched()">+</button>
+        </div>
+        <div id="sched-box" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Lista de Pendientes</h2>
+        </div>
+        <input type="text" id="tsk-in" placeholder="Nueva tarea..." />
+        <div class="grid-2">
+          <select id="tsk-tag">
+            <option value="Uni 3r">Uni 3r</option>
+            <option value="Lab / R">Lab / RStudio</option>
+            <option value="Asociación">Asociación</option>
+            <option value="Personal">Personal</option>
+          </select>
+          <button class="btn btn-lime" style="height:43px;" onclick="addTask()">Añadir</button>
+        </div>
+        <div id="tasks-box" style="margin-top:10px;"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- PESTAÑA 1: RED NEURONAL + SERVIDOR + LANZADOR -->
-  <div id="tab-jarvis" class="tab active">
-
-    <!-- Red Neuronal en vivo -->
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span class="pill" style="margin:0;">🧠 Red Neuronal Jarvis</span>
-        <button class="btn btn-soft btn-sm" onclick="fireCascade('study')">⚡ Simular Flujo</button>
-      </div>
-      <div class="neural-wrap">
-        <canvas id="neural-canvas"></canvas>
-      </div>
-      <div class="neural-log">
-        <span id="neural-status">Sinapsis en reposo • Toca un nodo o lanza un comando</span>
-        <span id="ping-badge">-- ms</span>
-      </div>
-    </div>
-
-    <!-- Monitor del Servidor Oracle Cloud -->
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span class="pill" style="margin:0; background:#dcfce7; color:#15803d;">🖥️ Servidor Oracle Ubuntu</span>
-        <button class="btn btn-soft btn-sm" onclick="measurePing()">🔄 Test Red</button>
-      </div>
-
-      <div class="service-row">
-        <span class="srv-chip">● jarvis.service</span>
-        <span class="srv-chip">● ChromaDB 3r</span>
-        <span class="srv-chip">● Drive Sync 15m</span>
-        <span class="srv-chip">● Gemini 2.5</span>
-      </div>
-
-      <div class="metric-grid">
-        <div class="metric-box">
-          <div class="metric-label">CPU (ARM64)</div>
-          <div class="metric-val" id="m-cpu">14%</div>
-          <div class="bar-bg"><div class="bar-fill" id="b-cpu" style="width:14%; background:#22c55e;"></div></div>
-        </div>
-        <div class="metric-box">
-          <div class="metric-label">RAM Usada</div>
-          <div class="metric-val" id="m-ram">1.4 / 6 GB</div>
-          <div class="bar-bg"><div class="bar-fill" id="b-ram" style="width:23%; background:#0ea5e9;"></div></div>
-        </div>
-        <div class="metric-box">
-          <div class="metric-label">Disco SSD</div>
-          <div class="metric-val" id="m-disk">18.2 / 46 GB</div>
-          <div class="bar-bg"><div class="bar-fill" id="b-disk" style="width:39%; background:#8b5cf6;"></div></div>
-        </div>
-        <div class="metric-box">
-          <div class="metric-label">Latencia API</div>
-          <div class="metric-val" id="m-lat">-- ms</div>
-          <div class="bar-bg"><div class="bar-fill" id="b-lat" style="width:20%; background:#f59e0b;"></div></div>
-        </div>
-      </div>
-
-      <button class="btn btn-soft" onclick="triggerCmd('/estado', 'server')">📡 Copiar /estado para pedir métricas reales al bot</button>
-    </div>
-
-    <!-- Lanzador de Estudio 3r -->
-    <div class="card">
-      <span class="pill">📚 Estudio 3r • Apuntes Drive</span>
-      <h2>Lanzador Rápido de Estudio</h2>
-      <input type="text" id="study-topic" placeholder="Ej: Fotosíntesis C4, Inmunidad innata, ANOVA..." />
-      <div class="grid-2">
-        <button class="btn btn-blue" onclick="triggerCmd('/repaso', 'study')">⚡ Repaso Exprés</button>
-        <button class="btn btn-green" onclick="triggerCmd('/test', 'study')">📝 Test Examen</button>
-      </div>
-      <div style="height:10px;"></div>
-      <div class="grid-2">
-        <button class="btn btn-soft" onclick="triggerCmd('/nuevo', 'drive')">🗂️ Esquema Tema</button>
-        <button class="btn btn-soft" onclick="triggerCmd('/start', 'server')">📊 Bloques 3r</button>
-      </div>
-      <div id="cmd-feedback" style="margin-top:10px; font-size:13px; font-weight:800; color:var(--blue-dark); display:none;"></div>
-    </div>
-  </div>
-
-  <!-- PESTAÑA 2: ENFOQUE + SPOTIFY + MODO ESTRICTO -->
-  <div id="tab-focus" class="tab">
-    <div id="strict-alert" class="alert-banner">
-      🚨 ¡Saliste de la app! El Pomodoro en Modo Estricto se ha cancelado automáticamente.
-    </div>
-
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <span class="pill" style="margin:0;">⏱️ Sesión de Enfoque</span>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-soft btn-sm" onclick="setDuration(25)">25m</button>
-          <button class="btn btn-soft btn-sm" onclick="setDuration(50)">50m</button>
-        </div>
-      </div>
-
-      <div class="timer-display" id="timer-display">25:00</div>
-
-      <div class="strict-box" id="strict-box">
-        <div>
-          <div style="font-weight:800; font-size:13.5px; color:#991b1b;">🔒 Modo Estricto Anti-Móvil</div>
-          <div style="font-size:11.5px; color:#b91c1c;">Si sales de Telegram, se cancela el bloque</div>
-        </div>
-        <input type="checkbox" id="strict-toggle" checked style="width:20px; height:20px; margin:0; accent-color:#ef4444;" onchange="updateStrictUI()" />
-      </div>
-
-      <div class="grid-2">
-        <button class="btn btn-green" id="btn-timer" onclick="toggleTimer()">▶️ Iniciar</button>
-        <button class="btn btn-soft" onclick="resetTimer()">🔄 Reiniciar</button>
-      </div>
-      <div style="text-align:center; font-size:12.5px; color:var(--muted); margin-top:10px;">
-        Hoy: <strong id="focus-mins">0</strong> min enfocados • Fallos estricto: <strong id="strict-fails">0</strong>
-      </div>
-    </div>
-
-    <!-- Micro-objetivos de la sesión -->
-    <div class="card">
-      <span class="pill">🎯 Micro-objetivos de la sesión</span>
-      <div style="display:flex; gap:8px;">
-        <input type="text" id="goal-input" placeholder="Ej: Repasar tema 4 de Fisiología..." style="margin:0;" />
-        <button class="btn btn-blue" style="width:auto; padding:0 16px;" onclick="addGoal()">+</button>
-      </div>
-      <div id="goal-list" style="margin-top:10px;"></div>
-    </div>
-
-    <!-- Reproductor Spotify Playlist -->
-    <div class="card">
-      <span class="pill" style="background:#dcfce7; color:#15803d;">🎧 Tu Playlist de Spotify</span>
-      <p class="desc">Pega el enlace de tu playlist de Spotify para tenerla integrada durante el estudio:</p>
-      <div style="display:flex; gap:8px; margin-bottom:10px;">
-        <input type="text" id="spotify-url" placeholder="https://open.spotify.com/playlist/..." style="margin:0;" />
-        <button class="btn btn-spotify" style="width:auto; padding:0 14px;" onclick="saveSpotify()">Cargar</button>
-      </div>
-      <div id="spotify-container"></div>
-    </div>
-  </div>
-
-  <!-- PESTAÑA 3: CUENTA ATRÁS EXÁMENES + HORARIO + TAREAS -->
-  <div id="tab-agenda" class="tab">
-    <div class="card">
-      <span class="pill" style="background:#fef3c7; color:#92400e;">⏳ Cuenta Atrás Exámenes / Entregas</span>
-      <div class="grid-2">
-        <input type="text" id="exam-name" placeholder="Ej: Parcial Bioquímica" />
-        <input type="date" id="exam-date" />
-      </div>
-      <button class="btn btn-blue" onclick="addExam()">+ Añadir Fecha Clave</button>
-      <div id="exam-list" style="margin-top:12px;"></div>
-    </div>
-
-    <div class="card">
-      <span class="pill">🗓️ Horario Semanal</span>
-      <div class="day-tabs" id="day-tabs">
-        <div class="day-tab active" onclick="selectDay('Lun', this)">Lun</div>
-        <div class="day-tab" onclick="selectDay('Mar', this)">Mar</div>
-        <div class="day-tab" onclick="selectDay('Mié', this)">Mié</div>
-        <div class="day-tab" onclick="selectDay('Jue', this)">Jue</div>
-        <div class="day-tab" onclick="selectDay('Vie', this)">Vie</div>
-      </div>
-      <div style="display:flex; gap:8px;">
-        <input type="text" id="sched-input" placeholder="Ej: 09:00 Prácticas Lab / 11:00 Inmuno" style="margin:0;" />
-        <button class="btn btn-green" style="width:auto; padding:0 16px;" onclick="addSched()">+</button>
-      </div>
-      <div id="sched-list" style="margin-top:10px;"></div>
-    </div>
-
-    <div class="card">
-      <span class="pill">✅ Tareas Pendientes</span>
-      <input type="text" id="task-input" placeholder="Nueva tarea..." />
-      <div class="grid-2">
-        <select id="task-tag">
-          <option value="Uni 3r">🎓 Uni 3r</option>
-          <option value="Lab / R">🧪 Lab / RStudio</option>
-          <option value="Asociación">🤝 Asociación</option>
-          <option value="Personal">🏠 Personal</option>
-        </select>
-        <button class="btn btn-green" style="height:44px;" onclick="addTask()">+ Añadir</button>
-      </div>
-      <div id="task-list" style="margin-top:10px;"></div>
-    </div>
-  </div>
-
-  <!-- Barra de navegación inferior -->
-  <div class="nav">
-    <button class="nav-btn active" onclick="switchTab('jarvis', this)"><span style="font-size:18px;">🧠</span>Jarvis</button>
-    <button class="nav-btn" onclick="switchTab('focus', this)"><span style="font-size:18px;">🎧</span>Enfoque</button>
-    <button class="nav-btn" onclick="switchTab('agenda', this)"><span style="font-size:18px;">📅</span>Agenda</button>
-  </div>
+  <nav>
+    <button class="nav-tab active" onclick="openView('jarvis', this)">
+      <span>◉</span><span>Red Jarvis</span>
+    </button>
+    <button class="nav-tab" onclick="openView('focus', this)">
+      <span>◔</span><span>Enfoque</span>
+    </button>
+    <button class="nav-tab" onclick="openView('agenda', this)">
+      <span>☰</span><span>Agenda</span>
+    </button>
+  </nav>
 
 <script>
   const tg = window.Telegram?.WebApp;
-  if (tg) { tg.ready(); tg.expand(); }
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    if (tg.setHeaderColor) tg.setHeaderColor("#0c1624");
+    if (tg.setBackgroundColor) tg.setBackgroundColor("#0c1624");
+  }
 
-  document.getElementById("today-date").textContent = new Date().toLocaleDateString("es-ES", {
-    weekday: "long", day: "numeric", month: "short"
-  });
-
-  function switchTab(name, el) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-    document.getElementById("tab-" + name).classList.add("active");
+  function openView(name, el) {
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+    document.getElementById("view-" + name).classList.add("active");
     el.classList.add("active");
-    if (name === "jarvis") resizeCanvas();
+    if (name === "jarvis") resizeNN();
   }
 
-  /* --- RED NEURONAL INTERACTIVA --- */
-  const canvas = document.getElementById("neural-canvas");
-  const ctx = canvas.getContext("2d");
-  let W = 320, H = 215;
+  /* --- 1. TRAZOS DE LUZ ORGÁNICOS DE FONDO --- */
+  const ambCanvas = document.getElementById("ambient-canvas");
+  const ambCtx = ambCanvas.getContext("2d");
+  let aW = window.innerWidth, aH = window.innerHeight;
 
-  function resizeCanvas() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    W = rect.width || 320;
-    H = 215;
-    canvas.width = W * 2;
-    canvas.height = H * 2;
-    ctx.setTransform(2, 0, 0, 2, 0, 0);
+  function resizeAmbient() {
+    aW = window.innerWidth; aH = window.innerHeight;
+    ambCanvas.width = aW; ambCanvas.height = aH;
   }
-  window.addEventListener("resize", resizeCanvas);
-  resizeCanvas();
+  window.addEventListener("resize", resizeAmbient);
+  resizeAmbient();
 
-  const nodes = [
-    { id: "tg", label: "Telegram", rx: 0.14, ry: 0.50, color: "#0ea5e9", r: 18, pulse: 0, info: "Entrada Telegram Bot API" },
-    { id: "core", label: "Jarvis Core", rx: 0.42, ry: 0.50, color: "#6366f1", r: 22, pulse: 0, info: "Orquestador Python (Oracle ARM64)" },
-    { id: "llm", label: "Gemini AI", rx: 0.72, ry: 0.24, color: "#8b5cf6", r: 18, pulse: 0, info: "Motor Razonamiento & Multimodal" },
-    { id: "chroma", label: "ChromaDB 3r", rx: 0.72, ry: 0.76, color: "#22c55e", r: 18, pulse: 0, info: "Memoria Vectorial Apuntes 3r" },
-    { id: "drive", label: "Drive Sync", rx: 0.90, ry: 0.50, color: "#f59e0b", r: 16, pulse: 0, info: "Sincronización PDF/GoodNotes 15m" },
-    { id: "tools", label: "Gmail/Cal", rx: 0.42, ry: 0.16, color: "#ec4899", r: 15, pulse: 0, info: "Google Workspace & Spotify" }
-  ];
+  const ribbons = Array.from({ length: 7 }, (_, i) => ({
+    xOffset: (aW / 6) * i,
+    speed: 0.0004 + i * 0.00012,
+    amp: 45 + i * 14,
+    phase: i * 1.1
+  }));
 
-  const links = [
-    ["tg", "core"], ["core", "llm"], ["core", "chroma"],
-    ["chroma", "drive"], ["llm", "chroma"], ["core", "tools"], ["llm", "tools"]
-  ];
-
-  let signals = [];
-
-  function spawnSignal(fromId, toId, color = "#0ea5e9") {
-    const a = nodes.find(n => n.id === fromId);
-    const b = nodes.find(n => n.id === toId);
-    if (a && b) {
-      a.pulse = 1;
-      signals.push({ a, b, t: 0, speed: 0.032, color });
-    }
+  function drawAmbient(t) {
+    ambCtx.clearRect(0, 0, aW, aH);
+    ribbons.forEach((r, idx) => {
+      ambCtx.beginPath();
+      for (let y = -40; y <= aH + 40; y += 24) {
+        const x = r.xOffset + Math.sin(y * 0.0045 + t * r.speed + r.phase) * r.amp;
+        if (y === -40) ambCtx.moveTo(x, y);
+        else ambCtx.lineTo(x, y);
+      }
+      const grad = ambCtx.createLinearGradient(0, 0, 0, aH);
+      grad.addColorStop(0, "rgba(56, 189, 248, 0)");
+      grad.addColorStop(0.5, idx % 2 === 0 ? "rgba(241, 245, 249, 0.22)" : "rgba(56, 189, 248, 0.16)");
+      grad.addColorStop(1, "rgba(190, 242, 100, 0)");
+      ambCtx.strokeStyle = grad;
+      ambCtx.lineWidth = idx % 2 === 0 ? 1.4 : 0.9;
+      ambCtx.stroke();
+    });
+    requestAnimationFrame(drawAmbient);
   }
+  requestAnimationFrame(drawAmbient);
 
-  function fireCascade(mode) {
-    const statusEl = document.getElementById("neural-status");
-    if (mode === "study") {
-      statusEl.textContent = "⚡ Consultando ChromaDB 3r → Gemini AI...";
-      spawnSignal("tg", "core", "#0ea5e9");
-      setTimeout(() => spawnSignal("core", "chroma", "#22c55e"), 320);
-      setTimeout(() => spawnSignal("chroma", "llm", "#8b5cf6"), 650);
-      setTimeout(() => spawnSignal("llm", "core", "#6366f1"), 980);
-      setTimeout(() => spawnSignal("core", "tg", "#22c55e"), 1300);
-    } else if (mode === "drive") {
-      statusEl.textContent = "🔄 Sincronizando Drive 3r → ChromaDB...";
-      spawnSignal("drive", "chroma", "#f59e0b");
-      setTimeout(() => spawnSignal("chroma", "core", "#22c55e"), 350);
-      setTimeout(() => spawnSignal("core", "tg", "#0ea5e9"), 700);
-    } else {
-      statusEl.textContent = "🖥️ Leyendo telemetría Oracle Cloud...";
-      spawnSignal("tg", "core", "#0ea5e9");
-      setTimeout(() => spawnSignal("core", "tools", "#ec4899"), 300);
-      setTimeout(() => spawnSignal("core", "tg", "#22c55e"), 650);
-    }
-  }
+  /* --- 2. RED NEURONAL DIDÁCTICA CON ESTADOS BINARIOS (1 / 0) --- */
+  const nnCanvas = document.getElementById("nn-canvas");
+  const nnCtx = nnCanvas.getContext("2d");
+  let nW = 340, nH = 220;
 
-  canvas.addEventListener("click", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    nodes.forEach(n => {
-      const nx = n.rx * W, ny = n.ry * H;
-      if (Math.hypot(mx - nx, my - ny) <= n.r + 8) {
-        n.pulse = 1;
-        document.getElementById("neural-status").textContent = `● ${n.label}: ${n.info}`;
-        links.forEach(([u, v]) => {
-          if (u === n.id) spawnSignal(u, v, n.color);
-          if (v === n.id) spawnSignal(v, u, n.color);
+  // Topología limpia: 4 -> 5 -> 5 -> 4 -> 3 neuronas con nodos numerados (1 o 0)
+  const TOPOLOGY = [4, 5, 5, 4, 3];
+  let netLayers = [];
+  let activeSignals = [];
+
+  function initNN() {
+    netLayers = [];
+    const padX = nW * 0.10;
+    const stepX = (nW - padX * 2) / (TOPOLOGY.length - 1);
+    const maxN = Math.max(...TOPOLOGY);
+    const stepY = (nH - 36) / (maxN - 1);
+
+    TOPOLOGY.forEach((count, lIdx) => {
+      const col = [];
+      const totalH = (count - 1) * stepY;
+      const startY = (nH - totalH) / 2;
+      for (let i = 0; i < count; i++) {
+        const isOn = (lIdx === 0 && i < 2) || (lIdx === 2 && i % 2 === 0) || (lIdx === 4 && i === 1);
+        col.push({
+          x: padX + lIdx * stepX,
+          y: startY + i * stepY,
+          state: isOn ? 1 : 0,
+          highlight: isOn ? 0.7 : 0
         });
       }
+      netLayers.push(col);
     });
-  });
-
-  // Pulso autónomo suave cada 3.5s
-  setInterval(() => {
-    const pair = links[Math.floor(Math.random() * links.length)];
-    spawnSignal(pair[0], pair[1], "#38bdf8");
-  }, 3500);
-
-  function drawNeural() {
-    ctx.clearRect(0, 0, W, H);
-
-    // Conexiones
-    links.forEach(([u, v]) => {
-      const a = nodes.find(n => n.id === u);
-      const b = nodes.find(n => n.id === v);
-      ctx.beginPath();
-      ctx.moveTo(a.rx * W, a.ry * H);
-      ctx.lineTo(b.rx * W, b.ry * H);
-      ctx.strokeStyle = "#cbd5e1";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
-
-    // Señales viajando
-    signals = signals.filter(s => s.t <= 1);
-    signals.forEach(s => {
-      const x = (s.a.rx + (s.b.rx - s.a.rx) * s.t) * W;
-      const y = (s.a.ry + (s.b.ry - s.a.ry) * s.t) * H;
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = s.color;
-      ctx.fill();
-      s.t += s.speed;
-      if (s.t >= 1) s.b.pulse = 1;
-    });
-
-    // Nodos
-    nodes.forEach(n => {
-      const x = n.rx * W, y = n.ry * H;
-      if (n.pulse > 0) {
-        ctx.beginPath();
-        ctx.arc(x, y, n.r + (1 - n.pulse) * 14, 0, Math.PI * 2);
-        ctx.strokeStyle = n.color;
-        ctx.globalAlpha = n.pulse * 0.5;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-        n.pulse = Math.max(0, n.pulse - 0.03);
-      }
-
-      ctx.beginPath();
-      ctx.arc(x, y, n.r, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = n.color;
-      ctx.stroke();
-
-      ctx.fillStyle = "#0f172a";
-      ctx.font = "800 10.5px -apple-system, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(n.label, x, y + n.r + 13);
-    });
-
-    requestAnimationFrame(drawNeural);
   }
-  drawNeural();
 
-  /* --- TELEMETRÍA Y LATENCIA --- */
-  async function measurePing() {
-    const t0 = performance.now();
-    try {
-      await fetch("https://davadunga.github.io/jarvis-hub/?t=" + Date.now(), { mode: "no-cors" });
-      const ms = Math.round(performance.now() - t0);
-      document.getElementById("ping-badge").textContent = `${ms} ms`;
-      document.getElementById("m-lat").textContent = `${ms} ms`;
-      document.getElementById("b-lat").style.width = `${Math.min(100, Math.max(10, ms / 4))}%`;
-      fireCascade("server");
-    } catch (e) {
-      document.getElementById("ping-badge").textContent = "Offline";
+  function resizeNN() {
+    const rect = nnCanvas.parentElement.getBoundingClientRect();
+    nW = (rect.width - 12) || 330;
+    nH = 220;
+    nnCanvas.width = nW * 2;
+    nnCanvas.height = nH * 2;
+    nnCtx.setTransform(2, 0, 0, 2, 0, 0);
+    initNN();
+  }
+  window.addEventListener("resize", resizeNN);
+  resizeNN();
+
+  function propagateSignal(mode = "study") {
+    const statusText = {
+      study: "Señal propagada: recuperando fragmentos en ChromaDB 3r → Gemini",
+      drive: "Sincronización: indexando documentos nuevos de Google Drive",
+      server: "Diagnóstico: verificando estado de servicios en Ubuntu ARM64"
+    };
+    document.getElementById("nn-status").textContent = statusText[mode] || statusText.study;
+
+    // Reset estados y activar ruta nueva
+    netLayers.forEach((col, lIdx) => {
+      col.forEach((node, nIdx) => {
+        const fire = Math.random() > 0.42 || (lIdx === 4 && nIdx === 1);
+        node.state = fire ? 1 : 0;
+        node.highlight = 0;
+      });
+    });
+
+    for (let l = 0; l < netLayers.length - 1; l++) {
+      setTimeout(() => {
+        netLayers[l].forEach(src => {
+          if (src.state === 1) {
+            src.highlight = 1;
+            netLayers[l + 1].forEach(dst => {
+              if (dst.state === 1) {
+                activeSignals.push({
+                  src, dst, t: 0, speed: 0.04,
+                  color: l >= 2 ? "#bef264" : "#38bdf8"
+                });
+              }
+            });
+          }
+        });
+      }, l * 240);
     }
   }
-  measurePing();
 
-  /* --- COMANDOS JARVIS --- */
-  function triggerCmd(cmd, flow = "study") {
-    fireCascade(flow);
-    const topic = document.getElementById("study-topic").value.trim();
-    copyText(topic && cmd !== "/estado" && cmd !== "/start" ? `${cmd} ${topic}` : cmd);
-  }
-  function copyText(txt) {
-    navigator.clipboard?.writeText(txt);
-    const fb = document.getElementById("cmd-feedback");
-    fb.style.display = "block";
-    fb.textContent = `📋 Copiado: "${txt}" — Pégalo en el chat de Jarvis`;
-    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
-  }
+  nnCanvas.addEventListener("click", () => propagateSignal("study"));
 
-  /* --- POMODORO + MODO ESTRICTO + SPOTIFY --- */
-  let baseMins = 25, secs = 25 * 60, timerInt = null;
-  const todayKey = new Date().toISOString().slice(0, 10);
-  let focusMins = Number(localStorage.getItem("jarvis_focus_" + todayKey) || 0);
-  let strictFails = Number(localStorage.getItem("jarvis_fails_" + todayKey) || 0);
-  document.getElementById("focus-mins").textContent = focusMins;
-  document.getElementById("strict-fails").textContent = strictFails;
+  function drawNN() {
+    nnCtx.clearRect(0, 0, nW, nH);
 
-  function updateStrictUI() {
-    const on = document.getElementById("strict-toggle").checked;
-    document.getElementById("strict-box").classList.toggle("active", on);
-  }
-  updateStrictUI();
+    // Conexiones rectas finas estilo esquema científico
+    for (let l = 0; l < netLayers.length - 1; l++) {
+      const curr = netLayers[l];
+      const next = netLayers[l + 1];
+      curr.forEach(a => {
+        next.forEach(b => {
+          const bothActive = a.state === 1 && b.state === 1;
+          nnCtx.beginPath();
+          nnCtx.moveTo(a.x, a.y);
+          nnCtx.lineTo(b.x, b.y);
+          if (bothActive) {
+            nnCtx.strokeStyle = l >= 2 ? "rgba(190, 242, 100, 0.42)" : "rgba(56, 189, 248, 0.42)";
+            nnCtx.lineWidth = 1.25;
+          } else {
+            nnCtx.strokeStyle = "rgba(148, 163, 184, 0.14)";
+            nnCtx.lineWidth = 0.75;
+          }
+          nnCtx.stroke();
+        });
+      });
+    }
 
-  function setDuration(m) {
-    if (timerInt) return;
-    baseMins = m; secs = m * 60; updateTimerUI();
-  }
-  function updateTimerUI() {
-    const m = String(Math.floor(secs / 60)).padStart(2, "0");
-    const s = String(secs % 60).padStart(2, "0");
-    document.getElementById("timer-display").textContent = `${m}:${s}`;
-  }
-  function playBell() {
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = "sine"; o.frequency.setValueAtTime(528, c.currentTime);
-      g.gain.setValueAtTime(0.3, c.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.2);
-      o.connect(g); g.connect(c.destination);
-      o.start(); o.stop(c.currentTime + 1.2);
-    } catch(e) {}
-  }
-  function toggleTimer() {
-    const btn = document.getElementById("btn-timer");
-    document.getElementById("strict-alert").style.display = "none";
-    if (timerInt) {
-      clearInterval(timerInt); timerInt = null;
-      btn.textContent = "▶️ Reanudar";
-      if (tg?.disableClosingConfirmation) tg.disableClosingConfirmation();
-    } else {
-      btn.textContent = "⏸️ Pausar";
-      if (document.getElementById("strict-toggle").checked && tg?.enableClosingConfirmation) {
-        tg.enableClosingConfirmation();
-      }
-      timerInt = setInterval(() => {
-        if (secs > 0) {
-          secs--; updateTimerUI();
-          if (secs % 60 === 0) {
-            focusMins++;
-            localStorage.setItem("jarvis_focus_" + todayKey, focusMins);
-            document.getElementById("focus-mins").textContent = focusMins;
+    // Pulsos viajando
+    activeSignals = activeSignals.filter(s => s.t <= 1);
+    activeSignals.forEach(s => {
+      const x = s.src.x + (s.dst.x - s.src.x) * s.t;
+      const y = s.src.y + (s.dst.y - s.src.y) * s.t;
+      nnCtx.beginPath();
+      nnCtx.arc(x, y, 3, 0, Math.PI * 2);
+      nnCtx.fillStyle = s.color;
+      nnCtx.fill();
+      s.t += s.speed;
+      if (s.t >= 1) s.dst.highlight = 1;
+    });
+
+    // Nodos circulares con etiqueta "1" o "0" dentro
+    netLayers.forEach((col, lIdx) => {
+      col.forEach(n => {
+        const r = 10.5;
+        const isLimeLayer = lIdx >= 3;
+        const activeColor = isLimeLayer ? "#bef264" : "#38bdf8";
+
+        nnCtx.beginPath();
+        nnCtx.arc(n.x, n.y, r, 0, Math.PI * 2);
+
+        if (n.state === 1) {
+          nnCtx.fillStyle = activeColor;
+          nnCtx.fill();
+          if (n.highlight > 0.05) {
+            nnCtx.beginPath();
+            nnCtx.arc(n.x, n.y, r + 4 * n.highlight, 0, Math.PI * 2);
+            nnCtx.strokeStyle = activeColor;
+            nnCtx.globalAlpha = n.highlight * 0.5;
+            nnCtx.lineWidth = 1.5;
+            nnCtx.stroke();
+            nnCtx.globalAlpha = 1;
+            n.highlight = Math.max(0, n.highlight - 0.025);
           }
         } else {
-          clearInterval(timerInt); timerInt = null;
+          nnCtx.fillStyle = "#0c1624";
+          nnCtx.fill();
+          nnCtx.lineWidth = 1.3;
+          nnCtx.strokeStyle = "rgba(148, 163, 184, 0.45)";
+          nnCtx.stroke();
+        }
+
+        // Texto binario 1 / 0
+        nnCtx.fillStyle = n.state === 1 ? "#09121e" : "#94a3b8";
+        nnCtx.font = "700 10px Inter, -apple-system, sans-serif";
+        nnCtx.textAlign = "center";
+        nnCtx.textBaseline = "middle";
+        nnCtx.fillText(String(n.state), n.x, n.y + 0.5);
+      });
+    });
+
+    requestAnimationFrame(drawNN);
+  }
+  drawNN();
+
+  /* --- 3. LATENCIA Y ENVÍO DIRECTO AL BOT --- */
+  async function checkLatency() {
+    const t0 = performance.now();
+    try {
+      await fetch("https://davadunga.github.io/jarvis-hub/?ping=" + Date.now(), { mode: "no-cors" });
+      const ms = Math.round(performance.now() - t0);
+      document.getElementById("ping-text").textContent = `${ms} ms`;
+      document.getElementById("val-lat").textContent = `${ms} ms`;
+      document.getElementById("bar-lat").style.width = `${Math.min(100, Math.max(12, ms / 3.5))}%`;
+      propagateSignal("server");
+    } catch (e) {
+      document.getElementById("ping-text").textContent = "Sin red";
+    }
+  }
+  checkLatency();
+
+  function sendToBot(cmd, flow) {
+    propagateSignal(flow);
+    const topic = document.getElementById("topic-input").value.trim();
+    const fullCmd = (topic && cmd !== "/estado" && cmd !== "/start") ? `${cmd} ${topic}` : cmd;
+
+    // Copiar siempre como respaldo y notificar visualmente
+    navigator.clipboard?.writeText(fullCmd);
+    const toast = document.getElementById("action-toast");
+    toast.style.display = "block";
+    toast.textContent = `Comando listo: "${fullCmd}" (copiado al portapapeles para enviar a Jarvis)`;
+
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+  }
+
+  /* --- 4. POMODORO + SPOTIFY --- */
+  let baseMins = 25, secs = 25 * 60, timerId = null;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  let focusedMins = Number(localStorage.getItem("j_focus_" + todayStr) || 0);
+  let failsCount = Number(localStorage.getItem("j_fails_" + todayStr) || 0);
+  document.getElementById("focused-today").textContent = focusedMins;
+  document.getElementById("fails-today").textContent = failsCount;
+
+  function setMins(m) {
+    if (timerId) return;
+    baseMins = m; secs = m * 60; renderClock();
+  }
+  function renderClock() {
+    const m = String(Math.floor(secs / 60)).padStart(2, "0");
+    const s = String(secs % 60).padStart(2, "0");
+    document.getElementById("clock-display").textContent = `${m}:${s}`;
+  }
+  function toggleClock() {
+    const btn = document.getElementById("btn-clock");
+    document.getElementById("strict-banner").style.display = "none";
+    if (timerId) {
+      clearInterval(timerId); timerId = null;
+      btn.textContent = "Reanudar";
+      if (tg?.disableClosingConfirmation) tg.disableClosingConfirmation();
+    } else {
+      btn.textContent = "Pausar";
+      if (document.getElementById("strict-check").checked && tg?.enableClosingConfirmation) {
+        tg.enableClosingConfirmation();
+      }
+      timerId = setInterval(() => {
+        if (secs > 0) {
+          secs--; renderClock();
+          if (secs % 60 === 0) {
+            focusedMins++;
+            localStorage.setItem("j_focus_" + todayStr, focusedMins);
+            document.getElementById("focused-today").textContent = focusedMins;
+          }
+        } else {
+          clearInterval(timerId); timerId = null;
           if (tg?.disableClosingConfirmation) tg.disableClosingConfirmation();
-          playBell();
-          alert(`🎉 ¡Bloque de ${baseMins} min completado!`);
-          resetTimer();
+          alert(`Sesión de ${baseMins} minutos completada.`);
+          resetClock();
         }
       }, 1000);
     }
   }
-  function resetTimer() {
-    clearInterval(timerInt); timerInt = null;
+  function resetClock() {
+    clearInterval(timerId); timerId = null;
     if (tg?.disableClosingConfirmation) tg.disableClosingConfirmation();
-    secs = baseMins * 60; updateTimerUI();
-    document.getElementById("btn-timer").textContent = "▶️ Iniciar";
+    secs = baseMins * 60; renderClock();
+    document.getElementById("btn-clock").textContent = "Iniciar sesión";
   }
 
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden && timerInt && document.getElementById("strict-toggle").checked) {
-      clearInterval(timerInt); timerInt = null;
-      if (tg?.disableClosingConfirmation) tg.disableClosingConfirmation();
-      secs = baseMins * 60; updateTimerUI();
-      document.getElementById("btn-timer").textContent = "▶️ Iniciar";
-      strictFails++;
-      localStorage.setItem("jarvis_fails_" + todayKey, strictFails);
-      document.getElementById("strict-fails").textContent = strictFails;
-      document.getElementById("strict-alert").style.display = "block";
+    if (document.hidden && timerId && document.getElementById("strict-check").checked) {
+      resetClock();
+      failsCount++;
+      localStorage.setItem("j_fails_" + todayStr, failsCount);
+      document.getElementById("fails-today").textContent = failsCount;
+      document.getElementById("strict-banner").style.display = "block";
     }
   });
 
-  // Micro-objetivos
-  let goals = JSON.parse(localStorage.getItem("jarvis_goals") || "[]");
+  // Objetivos sesión
+  let goals = JSON.parse(localStorage.getItem("j_goals") || "[]");
   function renderGoals() {
-    localStorage.setItem("jarvis_goals", JSON.stringify(goals));
-    const list = document.getElementById("goal-list");
-    list.innerHTML = goals.length ? "" : '<p class="desc" style="margin:0;">Añade 1–3 objetivos concretos para este bloque.</p>';
+    localStorage.setItem("j_goals", JSON.stringify(goals));
+    const box = document.getElementById("goals-box");
+    box.innerHTML = goals.length ? "" : '<p class="lead" style="margin:0;">Sin objetivos definidos todavía.</p>';
     goals.forEach((g, i) => {
       const div = document.createElement("div");
-      div.className = "item-row" + (g.done ? " done" : "");
-      div.innerHTML = `<div onclick="toggleGoal(${i})" style="flex:1;cursor:pointer;font-weight:700;font-size:13.5px;">${g.done ? "✅" : "⬜"} ${g.text}</div>
-        <button onclick="delGoal(${i})" style="background:none;border:none;color:#ef4444;font-weight:800;cursor:pointer;">✕</button>`;
-      list.appendChild(div);
+      div.className = "row-item" + (g.done ? " done" : "");
+      div.innerHTML = `<div onclick="togGoal(${i})" style="flex:1;cursor:pointer;">${g.done ? "●" : "○"} ${g.text}</div>
+        <button onclick="delGoal(${i})" style="background:none;border:none;color:var(--text-soft);cursor:pointer;">✕</button>`;
+      box.appendChild(div);
     });
   }
   function addGoal() {
-    const inp = document.getElementById("goal-input");
+    const inp = document.getElementById("goal-in");
     if (!inp.value.trim()) return;
     goals.push({ text: inp.value.trim(), done: false });
     inp.value = ""; renderGoals();
   }
-  function toggleGoal(i) { goals[i].done = !goals[i].done; renderGoals(); }
+  function togGoal(i) { goals[i].done = !goals[i].done; renderGoals(); }
   function delGoal(i) { goals.splice(i, 1); renderGoals(); }
   renderGoals();
 
   // Spotify
-  function loadSpotifyIframe(rawUrl) {
-    if (!rawUrl) return;
-    const match = rawUrl.match(/open\.spotify\.com\/(playlist|album|track)\/([a-zA-Z0-9]+)/);
-    const box = document.getElementById("spotify-container");
+  function renderSpotify(url) {
+    const match = (url || "").match(/open\.spotify\.com\/(playlist|album|track)\/([a-zA-Z0-9]+)/);
+    const frame = document.getElementById("spot-frame");
     if (match) {
-      const embedUrl = `https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=generator&theme=0`;
-      box.innerHTML = `<iframe style="border-radius:14px;" src="${embedUrl}" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-    } else {
-      box.innerHTML = `<p style="color:#ef4444;font-size:12.5px;font-weight:700;">Enlace no válido. Copia el enlace desde Compartir → Copiar enlace de la playlist en Spotify.</p>`;
+      frame.innerHTML = `<iframe style="border-radius:12px;" src="https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+    } else if (url) {
+      frame.innerHTML = `<p style="color:var(--danger);font-size:12px;">Enlace no reconocido. Usa Compartir → Copiar enlace de la playlist.</p>`;
     }
   }
   function saveSpotify() {
-    const url = document.getElementById("spotify-url").value.trim();
-    localStorage.setItem("jarvis_spotify_url", url);
-    loadSpotifyIframe(url);
+    const u = document.getElementById("spot-in").value.trim();
+    localStorage.setItem("j_spot", u);
+    renderSpotify(u);
   }
-  const savedSpot = localStorage.getItem("jarvis_spotify_url");
-  if (savedSpot) {
-    document.getElementById("spotify-url").value = savedSpot;
-    loadSpotifyIframe(savedSpot);
-  }
+  const savedSpot = localStorage.getItem("j_spot");
+  if (savedSpot) { document.getElementById("spot-in").value = savedSpot; renderSpotify(savedSpot); }
 
-  /* --- AGENDA: CUENTA ATRÁS + HORARIO + TAREAS --- */
-  let exams = JSON.parse(localStorage.getItem("jarvis_exams") || "[]");
+  /* --- 5. AGENDA, EXÁMENES Y TAREAS --- */
+  let exams = JSON.parse(localStorage.getItem("j_exams") || "[]");
   function renderExams() {
     exams.sort((a, b) => new Date(a.date) - new Date(b.date));
-    localStorage.setItem("jarvis_exams", JSON.stringify(exams));
-    const list = document.getElementById("exam-list");
-    list.innerHTML = exams.length ? "" : '<p class="desc" style="margin:0;">Sin fechas registradas.</p>';
+    localStorage.setItem("j_exams", JSON.stringify(exams));
+    const box = document.getElementById("exams-box");
+    box.innerHTML = exams.length ? "" : '<p class="lead" style="margin:0;">No hay fechas próximas.</p>';
     const now = new Date(); now.setHours(0,0,0,0);
     exams.forEach((ex, i) => {
-      const target = new Date(ex.date + "T00:00:00");
-      const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-      const badgeCls = diff <= 3 ? "urgent" : (diff <= 7 ? "soon" : "");
-      const label = diff < 0 ? "Pasado" : (diff === 0 ? "¡HOY!" : `Faltan ${diff}d`);
+      const diff = Math.ceil((new Date(ex.date + "T00:00:00") - now) / 86400000);
+      const cls = diff <= 3 ? "badge-lime badge-danger" : "badge-lime";
+      const label = diff < 0 ? "Finalizado" : (diff === 0 ? "Hoy" : `${diff} días`);
       const div = document.createElement("div");
-      div.className = "item-row";
-      div.innerHTML = `
-        <div style="flex:1;">
-          <div style="font-weight:800;font-size:14px;">${ex.name}</div>
-          <div style="font-size:12px;color:var(--muted);">${ex.date}</div>
-        </div>
-        <span class="days-badge ${badgeCls}">${label}</span>
-        <button onclick="delExam(${i})" style="background:none;border:none;color:#ef4444;font-weight:800;cursor:pointer;">✕</button>
-      `;
-      list.appendChild(div);
+      div.className = "row-item";
+      div.innerHTML = `<div style="flex:1;"><strong>${ex.name}</strong><div style="font-size:11.5px;color:var(--text-soft);">${ex.date}</div></div>
+        <span class="${cls}">${label}</span>
+        <button onclick="delExam(${i})" style="background:none;border:none;color:var(--text-soft);cursor:pointer;">✕</button>`;
+      box.appendChild(div);
     });
   }
   function addExam() {
-    const name = document.getElementById("exam-name").value.trim();
-    const date = document.getElementById("exam-date").value;
+    const name = document.getElementById("ex-name").value.trim();
+    const date = document.getElementById("ex-date").value;
     if (!name || !date) return;
     exams.push({ name, date });
-    document.getElementById("exam-name").value = "";
-    renderExams();
+    document.getElementById("ex-name").value = ""; renderExams();
   }
   function delExam(i) { exams.splice(i, 1); renderExams(); }
   renderExams();
 
-  let currentDay = "Lun";
-  let schedule = JSON.parse(localStorage.getItem("jarvis_sched") || '{"Lun":[],"Mar":[],"Mié":[],"Jue":[],"Vie":[]}');
-  function selectDay(day, el) {
-    currentDay = day;
-    document.querySelectorAll(".day-tab").forEach(d => d.classList.remove("active"));
+  let activeDay = "Lun";
+  let sched = JSON.parse(localStorage.getItem("j_sched") || '{"Lun":[],"Mar":[],"Mié":[],"Jue":[],"Vie":[]}');
+  function pickDay(d, el) {
+    activeDay = d;
+    document.querySelectorAll(".day-pill").forEach(p => p.classList.remove("active"));
     el.classList.add("active");
     renderSched();
   }
   function renderSched() {
-    localStorage.setItem("jarvis_sched", JSON.stringify(schedule));
-    const list = document.getElementById("sched-list");
-    const items = schedule[currentDay] || [];
-    list.innerHTML = items.length ? "" : `<p class="desc" style="margin:0;">Sin clases apuntadas el ${currentDay}.</p>`;
-    items.forEach((txt, i) => {
+    localStorage.setItem("j_sched", JSON.stringify(sched));
+    const box = document.getElementById("sched-box");
+    const list = sched[activeDay] || [];
+    box.innerHTML = list.length ? "" : `<p class="lead" style="margin:0;">Sin sesiones registradas el ${activeDay}.</p>`;
+    list.forEach((txt, i) => {
       const div = document.createElement("div");
-      div.className = "item-row";
-      div.innerHTML = `<div style="flex:1;font-weight:700;font-size:13.5px;">📘 ${txt}</div>
-        <button onclick="delSched(${i})" style="background:none;border:none;color:#ef4444;font-weight:800;cursor:pointer;">✕</button>`;
-      list.appendChild(div);
+      div.className = "row-item";
+      div.innerHTML = `<div style="flex:1;">${txt}</div>
+        <button onclick="delSched(${i})" style="background:none;border:none;color:var(--text-soft);cursor:pointer;">✕</button>`;
+      box.appendChild(div);
     });
   }
   function addSched() {
-    const inp = document.getElementById("sched-input");
+    const inp = document.getElementById("sch-in");
     if (!inp.value.trim()) return;
-    schedule[currentDay].push(inp.value.trim());
+    sched[activeDay].push(inp.value.trim());
     inp.value = ""; renderSched();
   }
-  function delSched(i) { schedule[currentDay].splice(i, 1); renderSched(); }
+  function delSched(i) { sched[activeDay].splice(i, 1); renderSched(); }
   renderSched();
 
-  let tasks = JSON.parse(localStorage.getItem("jarvis_tasks") || "[]");
+  let tasks = JSON.parse(localStorage.getItem("j_tasks") || "[]");
   function renderTasks() {
-    localStorage.setItem("jarvis_tasks", JSON.stringify(tasks));
-    const list = document.getElementById("task-list");
-    list.innerHTML = tasks.length ? "" : '<p class="desc" style="margin:0;">Sin tareas pendientes.</p>';
+    localStorage.setItem("j_tasks", JSON.stringify(tasks));
+    const box = document.getElementById("tasks-box");
+    box.innerHTML = tasks.length ? "" : '<p class="lead" style="margin:0;">Lista vacía.</p>';
     tasks.forEach((t, i) => {
       const div = document.createElement("div");
-      div.className = "item-row" + (t.done ? " done" : "");
-      div.innerHTML = `
-        <div onclick="toggleTask(${i})" style="flex:1;cursor:pointer;">
-          <span class="tag">${t.tag}</span><strong style="font-size:13.5px;">${t.text}</strong>
-        </div>
-        <button onclick="delTask(${i})" style="background:none;border:none;color:#ef4444;font-weight:800;cursor:pointer;">✕</button>
-      `;
-      list.appendChild(div);
+      div.className = "row-item" + (t.done ? " done" : "");
+      div.innerHTML = `<div onclick="togTask(${i})" style="flex:1;cursor:pointer;"><span class="badge-soft" style="margin-right:8px;">${t.tag}</span>${t.text}</div>
+        <button onclick="delTask(${i})" style="background:none;border:none;color:var(--text-soft);cursor:pointer;">✕</button>`;
+      box.appendChild(div);
     });
   }
   function addTask() {
-    const inp = document.getElementById("task-input");
+    const inp = document.getElementById("tsk-in");
     if (!inp.value.trim()) return;
-    tasks.unshift({ text: inp.value.trim(), tag: document.getElementById("task-tag").value, done: false });
+    tasks.unshift({ text: inp.value.trim(), tag: document.getElementById("tsk-tag").value, done: false });
     inp.value = ""; renderTasks();
   }
-  function toggleTask(i) { tasks[i].done = !tasks[i].done; renderTasks(); }
+  function togTask(i) { tasks[i].done = !tasks[i].done; renderTasks(); }
   function delTask(i) { tasks.splice(i, 1); renderTasks(); }
   renderTasks();
 </script>
