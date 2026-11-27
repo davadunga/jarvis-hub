@@ -46,16 +46,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 99;
-      opacity: 0.025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-
     :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
     button, input, textarea, select { font-family: inherit; color: inherit; }
     button { cursor: pointer; touch-action: manipulation; }
@@ -509,17 +499,17 @@
     <aside class="sidebar">
       <div class="brand-bar">
         <div class="brand-title"><span class="brand-orb"></span><span>Jarvis</span></div>
-        <span class="version-tag">v3.1</span>
+        <span class="version-tag">v3.2</span>
       </div>
-      <button type="button" class="new-chat-btn" onclick="createNewSession()">
+      <button type="button" class="new-chat-btn" id="btn-new-session">
         <span>+ Nueva simulación</span>
         <span class="version-tag" style="color:var(--lime);">⌘K</span>
       </button>
       <div class="nav-group">
         <div class="nav-label">Espacios</div>
-        <button type="button" class="nav-item active" onclick="switchView('chat', this)">◉ Red Neuronal & Flujo</button>
-        <button type="button" class="nav-item" onclick="switchView('focus', this)">◔ Enfoque & Spotify</button>
-        <button type="button" class="nav-item" onclick="switchView('agenda', this)">☰ Agenda & Exámenes 3r</button>
+        <button type="button" class="nav-item active" data-view="chat">◉ Red Neuronal & Flujo</button>
+        <button type="button" class="nav-item" data-view="focus">◔ Enfoque & Spotify</button>
+        <button type="button" class="nav-item" data-view="agenda">☰ Agenda & Exámenes 3r</button>
       </div>
       <div class="nav-group" style="flex:1; min-height:0;">
         <div class="nav-label">Historial</div>
@@ -543,14 +533,14 @@
       <section id="panel-chat" class="view-panel active" style="padding:0;">
         <div class="chat-scroll" id="chat-scroll"></div>
         <div class="composer-wrap">
-          <form class="composer" onsubmit="handleSend(event)">
-            <textarea id="prompt-input" rows="2" placeholder="Prueba una ruta neuronal (ej. /repaso ciclo celular, /test fotosíntesis, /estado)…" onkeydown="handleComposerKey(event)"></textarea>
+          <form class="composer" id="chat-form">
+            <textarea id="prompt-input" rows="2" placeholder="Prueba una ruta neuronal (ej. /repaso ciclo celular, /test fotosíntesis, /estado)…"></textarea>
             <div class="composer-footer">
               <div class="mode-pills">
-                <button type="button" class="mode-chip active" data-mode="auto" onclick="setMode('auto', this)">Auto</button>
-                <button type="button" class="mode-chip" data-mode="rag" onclick="setMode('rag', this)">📚 Ruta RAG 3r</button>
-                <button type="button" class="mode-chip" data-mode="exam" onclick="setMode('exam', this)">📝 Ruta Test</button>
-                <button type="button" class="mode-chip" data-mode="workspace" onclick="setMode('workspace', this)">⚡ Ruta Nodo</button>
+                <button type="button" class="mode-chip active" data-mode="auto">Auto</button>
+                <button type="button" class="mode-chip" data-mode="rag">📚 Ruta RAG 3r</button>
+                <button type="button" class="mode-chip" data-mode="exam">📝 Ruta Test</button>
+                <button type="button" class="mode-chip" data-mode="workspace">⚡ Ruta Nodo</button>
               </div>
               <button type="submit" class="send-btn">Simular ruta</button>
             </div>
@@ -564,8 +554,8 @@
             <div class="card-head">
               <h2>Bloque de Concentración Profunda</h2>
               <div style="display:flex; gap:6px;">
-                <button type="button" class="btn-ui" style="padding:4px 10px; font-size:12px;" onclick="setTimerMins(25)">25m</button>
-                <button type="button" class="btn-ui" style="padding:4px 10px; font-size:12px;" onclick="setTimerMins(50)">50m</button>
+                <button type="button" class="btn-ui" id="btn-25m" style="padding:4px 10px; font-size:12px;">25m</button>
+                <button type="button" class="btn-ui" id="btn-50m" style="padding:4px 10px; font-size:12px;">50m</button>
               </div>
             </div>
             <div class="clock-big" id="clock-display">25:00</div>
@@ -574,8 +564,8 @@
               <input type="checkbox" id="strict-toggle" checked style="accent-color:var(--danger); width:16px; height:16px;" />
             </label>
             <div class="btn-row">
-              <button type="button" class="btn-ui lime" id="clock-btn" onclick="toggleTimer()">Iniciar sesión</button>
-              <button type="button" class="btn-ui" onclick="resetTimer()">Reiniciar</button>
+              <button type="button" class="btn-ui lime" id="clock-btn">Iniciar sesión</button>
+              <button type="button" class="btn-ui" id="clock-reset">Reiniciar</button>
             </div>
             <p style="text-align:center; font-size:12.5px; color:var(--text-soft); margin:12px 0 0;">
               Hoy: <strong id="focus-mins" style="color:#fff;">0</strong> min · Interrupciones: <strong id="focus-fails" style="color:var(--danger);">0</strong>
@@ -585,7 +575,7 @@
             <div class="card-head"><h2>Playlist de Estudio (Spotify)</h2></div>
             <div style="display:flex; gap:8px; margin-bottom:10px;">
               <input id="spotify-url" class="input-ui" placeholder="https://open.spotify.com/playlist/…" />
-              <button type="button" class="btn-ui lime" style="white-space:nowrap;" onclick="loadSpotify()">Cargar</button>
+              <button type="button" class="btn-ui lime" id="btn-spotify" style="white-space:nowrap;">Cargar</button>
             </div>
             <div id="spotify-embed"></div>
           </div>
@@ -599,7 +589,7 @@
             <div style="display:grid; grid-template-columns:1fr 160px auto; gap:8px;">
               <input id="exam-title" class="input-ui" placeholder="Ej: Parcial Fisiología Vegetal…" />
               <input id="exam-date" class="input-ui" type="date" />
-              <button type="button" class="btn-ui cyan" onclick="addExam()">Añadir</button>
+              <button type="button" class="btn-ui cyan" id="btn-add-exam">Añadir</button>
             </div>
             <div id="exams-list"></div>
           </div>
@@ -612,7 +602,7 @@
                 <option value="Lab / R">Lab / R</option>
                 <option value="Jarvis">Jarvis</option>
               </select>
-              <button type="button" class="btn-ui lime" onclick="addTask()">Añadir</button>
+              <button type="button" class="btn-ui lime" id="btn-add-task">Añadir</button>
             </div>
             <div id="tasks-list"></div>
           </div>
@@ -660,29 +650,11 @@
   </div>
 
 <script>
-  const tg = window.Telegram && window.Telegram.WebApp;
+(function() {
+  var tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>'"]/g, function(ch) {
-      if (ch === "&") return String.fromCharCode(38) + "amp;";
-      if (ch === "<") return String.fromCharCode(38) + "lt;";
-      if (ch === ">") return String.fromCharCode(38) + "gt;";
-      if (ch === '"') return String.fromCharCode(38) + "quot;";
-      return String.fromCharCode(38) + "#39;";
-    });
-  }
-
-  function getGreetingContext() {
-    const h = new Date().getHours();
-    const sal = h < 13 ? "Buenos días, David" : (h < 20 ? "Buenas tardes, David" : "Buenas noches, David");
-    return {
-      title: sal + ".",
-      sub: "Aquí tienes el mapa neuronal de Jarvis y el estado de recursos del servidor Oracle Cloud (4 OCPU · 24 GB RAM · 46.6 GB)."
-    };
-  }
-
-  const LAYERS = [
+  var LAYERS = [
     [
       { id: "in_txt", short: "Texto", role: "Entrada Texto", desc: "Recibe la consulta escrita desde Telegram o el workspace." },
       { id: "in_med", short: "Voz/Img", role: "Multimodal", desc: "Procesa notas de voz o capturas de pizarras." },
@@ -711,58 +683,67 @@
     ]
   ];
 
-  const nnCanvas = document.getElementById("nn-canvas");
-  const nnCtx = nnCanvas.getContext("2d");
-  let activeNodeIds = new Set(["in_txt", "auth", "parser", "intent", "chroma", "drive", "rag_merge", "rigor", "gemini", "out_chat"]);
-  let selectedNodeId = null;
-  let computedNodes = [];
+  var nnCanvas = document.getElementById("nn-canvas");
+  var nnCtx = nnCanvas.getContext("2d");
+  var activeNodeIds = new Set(["in_txt", "auth", "parser", "intent", "chroma", "drive", "rag_merge", "rigor", "gemini", "out_chat"]);
+  var selectedNodeId = null;
+  var computedNodes = [];
 
   function computeLayout() {
-    const rect = nnCanvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    const w = rect.width || 365;
-    const h = 260;
+    var rect = nnCanvas.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    var w = rect.width || 365;
+    var h = 260;
     nnCanvas.width = w * dpr;
     nnCanvas.height = h * dpr;
     nnCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     computedNodes = [];
-    const padX = 34;
-    const stepX = (w - padX * 2) / (LAYERS.length - 1);
+    var padX = 34;
+    var stepX = (w - padX * 2) / (LAYERS.length - 1);
     LAYERS.forEach(function(layer, lIdx) {
-      const x = padX + lIdx * stepX;
-      const stepY = h / (layer.length + 1);
+      var x = padX + lIdx * stepX;
+      var stepY = h / (layer.length + 1);
       layer.forEach(function(node, nIdx) {
-        computedNodes.push(Object.assign({}, node, { layer: lIdx, x: x, y: stepY * (nIdx + 1), r: 14.5 }));
+        computedNodes.push({
+          id: node.id,
+          short: node.short,
+          role: node.role,
+          desc: node.desc,
+          layer: lIdx,
+          x: x,
+          y: stepY * (nIdx + 1),
+          r: 14.5
+        });
       });
     });
   }
 
   function renderNN(ts) {
-    const w = nnCanvas.clientWidth || 365;
-    const h = 260;
+    var w = nnCanvas.clientWidth || 365;
+    var h = 260;
     nnCtx.clearRect(0, 0, w, h);
-    const pulseProgress = (ts * 0.00065) % 1;
+    var pulseProgress = (ts * 0.00065) % 1;
 
-    for (let i = 0; i < computedNodes.length; i++) {
-      const a = computedNodes[i];
-      for (let j = 0; j < computedNodes.length; j++) {
-        const b = computedNodes[j];
+    for (var i = 0; i < computedNodes.length; i++) {
+      var a = computedNodes[i];
+      for (var j = 0; j < computedNodes.length; j++) {
+        var b = computedNodes[j];
         if (b.layer !== a.layer + 1) continue;
-        const bothActive = activeNodeIds.has(a.id) && activeNodeIds.has(b.id);
+        var bothActive = activeNodeIds.has(a.id) && activeNodeIds.has(b.id);
         nnCtx.beginPath();
         nnCtx.moveTo(a.x, a.y);
-        const cx = (a.x + b.x) / 2;
+        var cx = (a.x + b.x) / 2;
         nnCtx.bezierCurveTo(cx, a.y, cx, b.y, b.x, b.y);
         nnCtx.strokeStyle = bothActive ? "rgba(56, 189, 248, 0.55)" : "rgba(168, 184, 204, 0.09)";
         nnCtx.lineWidth = bothActive ? 1.6 : 0.85;
         nnCtx.stroke();
 
         if (bothActive) {
-          const t = (pulseProgress + a.layer * 0.22) % 1;
-          const mt = 1 - t;
-          const px = mt * mt * mt * a.x + 3 * mt * mt * t * cx + 3 * mt * t * t * cx + t * t * t * b.x;
-          const py = mt * mt * mt * a.y + 3 * mt * mt * t * a.y + 3 * mt * t * t * b.y + t * t * t * b.y;
+          var t = (pulseProgress + a.layer * 0.22) % 1;
+          var mt = 1 - t;
+          var px = mt * mt * mt * a.x + 3 * mt * mt * t * cx + 3 * mt * t * t * cx + t * t * t * b.x;
+          var py = mt * mt * mt * a.y + 3 * mt * mt * t * a.y + 3 * mt * t * t * b.y + t * t * t * b.y;
           nnCtx.beginPath();
           nnCtx.arc(px, py, 2.3, 0, Math.PI * 2);
           nnCtx.fillStyle = "#bef264";
@@ -772,8 +753,8 @@
     }
 
     computedNodes.forEach(function(n) {
-      const isOn = activeNodeIds.has(n.id);
-      const isSel = selectedNodeId === n.id;
+      var isOn = activeNodeIds.has(n.id);
+      var isSel = selectedNodeId === n.id;
 
       if (isOn) {
         nnCtx.beginPath();
@@ -791,13 +772,13 @@
       nnCtx.stroke();
 
       nnCtx.fillStyle = isOn ? "#bef264" : "#70849e";
-      nnCtx.font = "600 11px 'JetBrains Mono', monospace";
+      nnCtx.font = "600 11px monospace";
       nnCtx.textAlign = "center";
       nnCtx.textBaseline = "middle";
       nnCtx.fillText(isOn ? "1" : "0", n.x, n.y);
 
       nnCtx.fillStyle = isOn ? "#f1f5f9" : "#70849e";
-      nnCtx.font = "500 9.5px 'Plus Jakarta Sans', sans-serif";
+      nnCtx.font = "500 9.5px sans-serif";
       nnCtx.fillText(n.short, n.x, n.y + n.r + 10);
     });
 
@@ -805,14 +786,21 @@
   }
 
   nnCanvas.addEventListener("click", function(e) {
-    const rect = nnCanvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const hit = computedNodes.find(function(n) { return Math.hypot(n.x - mx, n.y - my) <= n.r + 6; });
+    var rect = nnCanvas.getBoundingClientRect();
+    var mx = e.clientX - rect.left;
+    var my = e.clientY - rect.top;
+    var hit = computedNodes.find(function(n) { return Math.hypot(n.x - mx, n.y - my) <= n.r + 6; });
     if (hit) {
       selectedNodeId = hit.id;
-      const stateText = activeNodeIds.has(hit.id) ? "ACTIVA (1)" : "EN REPOSO (0)";
-      document.getElementById("node-inspector").innerHTML = "<strong>" + escapeHtml(hit.role) + " · [" + stateText + "]</strong><span>" + escapeHtml(hit.desc) + "</span>";
+      var stateText = activeNodeIds.has(hit.id) ? "ACTIVA (1)" : "EN REPOSO (0)";
+      var box = document.getElementById("node-inspector");
+      box.textContent = "";
+      var st = document.createElement("strong");
+      st.textContent = hit.role + " · [" + stateText + "]";
+      var sp = document.createElement("span");
+      sp.textContent = hit.desc;
+      box.appendChild(st);
+      box.appendChild(sp);
     }
   });
 
@@ -820,11 +808,10 @@
   computeLayout();
   requestAnimationFrame(renderNN);
 
-  // Telemetría suave y realista en tiempo real sin errores de red
   function updateTelemetry() {
-    const cpu = Math.floor(8 + Math.random() * 11);
-    const ramUsed = (5.3 + Math.random() * 0.4).toFixed(1);
-    const lat = Math.floor(14 + Math.random() * 9);
+    var cpu = Math.floor(8 + Math.random() * 11);
+    var ramUsed = (5.3 + Math.random() * 0.4).toFixed(1);
+    var lat = Math.floor(14 + Math.random() * 9);
     document.getElementById("tele-cpu").textContent = cpu + "%";
     document.getElementById("bar-cpu").style.width = cpu + "%";
     document.getElementById("tele-ram").textContent = ramUsed + " / 24 GB";
@@ -836,18 +823,16 @@
   updateTelemetry();
   setInterval(updateTelemetry, 4000);
 
-  let sessions = JSON.parse(localStorage.getItem("jarvis_sessions") || "[]");
-  let currentSessionId = sessions[0] ? sessions[0].id : null;
-  let currentMode = "auto";
+  var sessions = JSON.parse(localStorage.getItem("jarvis_sessions") || "[]");
+  var currentSessionId = sessions[0] ? sessions[0].id : null;
+  var currentMode = "auto";
 
-  function setMode(mode, btn) {
-    currentMode = mode;
-    document.querySelectorAll(".mode-chip").forEach(function(c) { c.classList.remove("active"); });
-    btn.classList.add("active");
+  function saveSessions() {
+    localStorage.setItem("jarvis_sessions", JSON.stringify(sessions.slice(0, 20)));
   }
 
   function createNewSession() {
-    const id = "s_" + Date.now();
+    var id = "s_" + Date.now();
     sessions.unshift({ id: id, title: "Nueva ruta neuronal", messages: [] });
     currentSessionId = id;
     saveSessions();
@@ -855,72 +840,158 @@
     renderChat();
   }
 
-  function saveSessions() { localStorage.setItem("jarvis_sessions", JSON.stringify(sessions.slice(0, 20))); }
-
   function renderHistory() {
-    document.getElementById("history-list").innerHTML = sessions.map(function(s) {
-      return '<button type="button" class="history-btn ' + (s.id === currentSessionId ? "active" : "") + '" onclick="selectSession(\'' + s.id + '\')">' + escapeHtml(s.title) + "</button>";
-    }).join("");
+    var list = document.getElementById("history-list");
+    list.textContent = "";
+    sessions.forEach(function(s) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "history-btn" + (s.id === currentSessionId ? " active" : "");
+      btn.textContent = s.title;
+      btn.addEventListener("click", function() {
+        currentSessionId = s.id;
+        renderHistory();
+        renderChat();
+      });
+      list.appendChild(btn);
+    });
   }
 
-  function selectSession(id) { currentSessionId = id; renderHistory(); renderChat(); }
-
   function renderChat() {
-    const scroll = document.getElementById("chat-scroll");
-    const session = sessions.find(function(s) { return s.id === currentSessionId; });
+    var scroll = document.getElementById("chat-scroll");
+    scroll.textContent = "";
+    var session = sessions.find(function(s) { return s.id === currentSessionId; });
+
     if (!session || session.messages.length === 0) {
-      const hero = getGreetingContext();
-      scroll.innerHTML = '<div class="empty-hero"><span class="hero-kicker">ORACLE ARM64 · 4 OCPU · 24 GB RAM</span><h1>' + escapeHtml(hero.title) + '</h1><p>' + escapeHtml(hero.sub) + '</p><div class="prompt-grid"><button type="button" class="starter-card" onclick="quickPrompt(\'/repaso Regulación del ciclo celular\', \'rag\')"><strong>📚 Simular ruta RAG 3r</strong><span>Ilumina L1 → Auth → ChromaDB 3r → Drive → Gemini</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'/test Fotosíntesis C4 y CAM\', \'exam\')"><strong>📝 Simular ruta Test</strong><span>Activa las neuronas de evaluación y salida Test/Esq</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'/estado servidor Oracle\', \'workspace\')"><strong>⚡ Simular ruta Nodo</strong><span>Activa el nodo Workspace y telemetría ARM64</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'Consulta multimodal con imagen de pizarra\', \'auto\')"><strong>🖼️ Ruta Multimodal</strong><span>Enciende el nodo Voz/Img en la capa L1</span></button></div></div>';
+      var hero = document.createElement("div");
+      hero.className = "empty-hero";
+
+      var kicker = document.createElement("span");
+      kicker.className = "hero-kicker";
+      kicker.textContent = "ORACLE ARM64 · 4 OCPU · 24 GB RAM";
+      hero.appendChild(kicker);
+
+      var h1 = document.createElement("h1");
+      var h = new Date().getHours();
+      h1.textContent = (h < 13 ? "Buenos días, David." : (h < 20 ? "Buenas tardes, David." : "Buenas noches, David."));
+      hero.appendChild(h1);
+
+      var p = document.createElement("p");
+      p.textContent = "Aquí tienes el mapa neuronal de Jarvis y el estado de recursos del servidor Oracle Cloud.";
+      hero.appendChild(p);
+
+      var grid = document.createElement("div");
+      grid.className = "prompt-grid";
+
+      var starters = [
+        { title: "📚 Simular ruta RAG 3r", desc: "Ilumina L1 → Auth → ChromaDB 3r → Drive → Gemini", cmd: "/repaso Regulación del ciclo celular", mode: "rag" },
+        { title: "📝 Simular ruta Test", desc: "Activa las neuronas de evaluación y salida Test/Esq", cmd: "/test Fotosíntesis C4 y CAM", mode: "exam" },
+        { title: "⚡ Simular ruta Nodo", desc: "Activa el nodo Workspace y telemetría ARM64", cmd: "/estado servidor Oracle", mode: "workspace" },
+        { title: "🖼️ Ruta Multimodal", desc: "Enciende el nodo Voz/Img en la capa L1", cmd: "Consulta multimodal con imagen de pizarra", mode: "auto" }
+      ];
+
+      starters.forEach(function(item) {
+        var card = document.createElement("button");
+        card.type = "button";
+        card.className = "starter-card";
+        var st = document.createElement("strong");
+        st.textContent = item.title;
+        var sp = document.createElement("span");
+        sp.textContent = item.desc;
+        card.appendChild(st);
+        card.appendChild(sp);
+        card.addEventListener("click", function() {
+          runSimulation(item.cmd, item.mode);
+        });
+        grid.appendChild(card);
+      });
+
+      hero.appendChild(grid);
+      scroll.appendChild(hero);
       return;
     }
 
-    scroll.innerHTML = session.messages.map(function(m, idx) {
-      if (m.role === "user") return '<div class="msg user"><div class="bubble">' + escapeHtml(m.text) + "</div></div>";
-      const stepsHtml = (m.trace && m.trace.steps ? m.trace.steps : []).map(function(st) {
-        return '<div class="trace-step-line"><span><strong>' + escapeHtml(st.label) + ":</strong> " + escapeHtml(st.detail) + '</span><span style="font-family:var(--font-mono);">' + st.ms + " ms</span></div>";
-      }).join("");
-      return '<div class="msg ai"><div class="ai-meta"><strong style="color:#fff;">Jarvis</strong><button type="button" class="trace-toggle" onclick="toggleTrace(' + idx + ')">◉ Ver capas activadas (' + m.trace.active_nodes.length + " neuronas)</button></div><div class="trace-box open" id="trace-box-' + idx + '">' + stepsHtml + '</div><div class="ai-body">' + escapeHtml(m.text) + "</div></div>";
-    }).join("");
+    session.messages.forEach(function(m) {
+      var wrap = document.createElement("div");
+      if (m.role === "user") {
+        wrap.className = "msg user";
+        var b = document.createElement("div");
+        b.className = "bubble";
+        b.textContent = m.text;
+        wrap.appendChild(b);
+      } else {
+        wrap.className = "msg ai";
+        var meta = document.createElement("div");
+        meta.className = "ai-meta";
+        var who = document.createElement("strong");
+        who.style.color = "#fff";
+        who.textContent = "Jarvis";
+        meta.appendChild(who);
+
+        var tbox = document.createElement("div");
+        tbox.className = "trace-box open";
+
+        if (m.trace && m.trace.steps) {
+          var tog = document.createElement("button");
+          tog.type = "button";
+          tog.className = "trace-toggle";
+          tog.textContent = "◉ Ver capas activadas (" + m.trace.active_nodes.length + " neuronas)";
+          tog.addEventListener("click", function() {
+            tbox.classList.toggle("open");
+            activeNodeIds = new Set(m.trace.active_nodes);
+          });
+          meta.appendChild(tog);
+
+          m.trace.steps.forEach(function(st) {
+            var line = document.createElement("div");
+            line.className = "trace-step-line";
+            var left = document.createElement("span");
+            var lb = document.createElement("strong");
+            lb.textContent = st.label + ": ";
+            left.appendChild(lb);
+            left.appendChild(document.createTextNode(st.detail));
+            var right = document.createElement("span");
+            right.style.fontFamily = "var(--font-mono)";
+            right.textContent = st.ms + " ms";
+            line.appendChild(left);
+            line.appendChild(right);
+            tbox.appendChild(line);
+          });
+        }
+
+        var body = document.createElement("div");
+        body.className = "ai-body";
+        body.textContent = m.text;
+
+        wrap.appendChild(meta);
+        wrap.appendChild(tbox);
+        wrap.appendChild(body);
+      }
+      scroll.appendChild(wrap);
+    });
+
     scroll.scrollTop = scroll.scrollHeight;
   }
 
-  function toggleTrace(idx) {
-    const box = document.getElementById("trace-box-" + idx);
-    if (box) box.classList.toggle("open");
-    const session = sessions.find(function(s) { return s.id === currentSessionId; });
-    if (session && session.messages[idx] && session.messages[idx].trace) {
-      activeNodeIds = new Set(session.messages[idx].trace.active_nodes);
-    }
-  }
-
-  function quickPrompt(text, mode) {
-    currentMode = mode;
-    document.querySelectorAll(".mode-chip").forEach(function(c) { c.classList.toggle("active", c.dataset.mode === mode); });
-    document.getElementById("prompt-input").value = text;
-    handleSend();
-  }
-
-  function handleComposerKey(e) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
-  }
-
-  function handleSend(e) {
-    if (e) e.preventDefault();
-    const input = document.getElementById("prompt-input");
-    const prompt = input.value.trim();
+  function runSimulation(prompt, mode) {
     if (!prompt) return;
-
+    if (mode) {
+      currentMode = mode;
+      document.querySelectorAll(".mode-chip").forEach(function(c) {
+        c.classList.toggle("active", c.getAttribute("data-mode") === mode);
+      });
+    }
     if (!currentSessionId) createNewSession();
-    const session = sessions.find(function(s) { return s.id === currentSessionId; });
+    var session = sessions.find(function(s) { return s.id === currentSessionId; });
     if (session.messages.length === 0) session.title = prompt.slice(0, 36);
 
     session.messages.push({ role: "user", text: prompt });
-    input.value = "";
 
-    const isImg = prompt.toLowerCase().includes("imagen") || prompt.toLowerCase().includes("voz");
-    const active = [isImg ? "in_med" : (prompt.startsWith("/") ? "in_cmd" : "in_txt"), "auth", "parser", "intent", "hist", "profile", "gemini"];
-    const steps = [
-      { label: "L1 Entrada", detail: isImg ? "Nodo Voz/Img activado" : (prompt.startsWith("/") ? "Comando directo detectado" : "Texto estándar"), ms: 4 },
+    var low = prompt.toLowerCase();
+    var isImg = low.indexOf("imagen") !== -1 || low.indexOf("voz") !== -1;
+    var active = [isImg ? "in_med" : (prompt.charAt(0) === "/" ? "in_cmd" : "in_txt"), "auth", "parser", "intent", "hist", "profile", "gemini"];
+    var steps = [
+      { label: "L1 Entrada", detail: isImg ? "Nodo Voz/Img activado" : (prompt.charAt(0) === "/" ? "Comando directo detectado" : "Texto estándar"), ms: 4 },
       { label: "L2 Filtro", detail: "Auth ID + Router Intent (" + currentMode.toUpperCase() + ")", ms: 9 }
     ];
 
@@ -928,7 +999,7 @@
       active.push("chroma", "drive", "rag_merge", "rigor");
       steps.push({ label: "L3 Datos", detail: "Consulta vectorial en ChromaDB 3r + Drive", ms: 24 });
     }
-    if (currentMode === "workspace" || prompt.startsWith("/estado")) {
+    if (currentMode === "workspace" || prompt.indexOf("/estado") === 0) {
       active.push("gwork");
       steps.push({ label: "L3 Workspace", detail: "Lectura de CPU, RAM (24 GB) y disco ARM64", ms: 11 });
     }
@@ -941,11 +1012,18 @@
 
     activeNodeIds = new Set(active);
     document.getElementById("trace-ms-badge").textContent = active.length + " activas";
-    document.getElementById("node-inspector").innerHTML = "<strong>Ruta iluminada (" + active.length + " neuronas en 1)</strong><span>" + steps.map(function(s) { return s.label; }).join(" → ") + "</span>";
+    var insp = document.getElementById("node-inspector");
+    insp.textContent = "";
+    var s1 = document.createElement("strong");
+    s1.textContent = "Ruta iluminada (" + active.length + " neuronas en 1)";
+    var s2 = document.createElement("span");
+    s2.textContent = steps.map(function(x) { return x.label; }).join(" → ");
+    insp.appendChild(s1);
+    insp.appendChild(s2);
 
     session.messages.push({
       role: "ai",
-      text: "Ruta neuronal iluminada en el panel derecho (" + active.length + " nodos activos en estado 1). Usa tu bot de Telegram para ejecutar las consultas completas.",
+      text: "Ruta neuronal iluminada en el panel derecho (" + active.length + " nodos activos en estado 1).",
       trace: { active_nodes: active, steps: steps }
     });
 
@@ -954,23 +1032,53 @@
     renderChat();
   }
 
-  function switchView(name, btn) {
-    document.querySelectorAll(".view-panel").forEach(function(p) { p.classList.remove("active"); });
-    document.querySelectorAll(".nav-item").forEach(function(n) { n.classList.remove("active"); });
-    document.getElementById("panel-" + name).classList.add("active");
-    btn.classList.add("active");
-  }
+  document.getElementById("btn-new-session").addEventListener("click", createNewSession);
 
-  let timerSec = 25 * 60;
-  let timerId = null;
-  let focusMins = Number(localStorage.getItem("jarvis_focus_mins") || 0);
-  let focusFails = Number(localStorage.getItem("jarvis_focus_fails") || 0);
+  document.querySelectorAll(".nav-item").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var target = btn.getAttribute("data-view");
+      document.querySelectorAll(".view-panel").forEach(function(p) { p.classList.remove("active"); });
+      document.querySelectorAll(".nav-item").forEach(function(n) { n.classList.remove("active"); });
+      document.getElementById("panel-" + target).classList.add("active");
+      btn.classList.add("active");
+    });
+  });
+
+  document.querySelectorAll(".mode-chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      currentMode = chip.getAttribute("data-mode");
+      document.querySelectorAll(".mode-chip").forEach(function(c) { c.classList.remove("active"); });
+      chip.classList.add("active");
+    });
+  });
+
+  document.getElementById("chat-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var inp = document.getElementById("prompt-input");
+    var val = inp.value.trim();
+    inp.value = "";
+    runSimulation(val, null);
+  });
+
+  document.getElementById("prompt-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      var val = this.value.trim();
+      this.value = "";
+      runSimulation(val, null);
+    }
+  });
+
+  var timerSec = 25 * 60;
+  var timerId = null;
+  var focusMins = Number(localStorage.getItem("jarvis_focus_mins") || 0);
+  var focusFails = Number(localStorage.getItem("jarvis_focus_fails") || 0);
   document.getElementById("focus-mins").textContent = focusMins;
   document.getElementById("focus-fails").textContent = focusFails;
 
   function renderClock() {
-    const m = String(Math.floor(timerSec / 60)).padStart(2, "0");
-    const s = String(timerSec % 60).padStart(2, "0");
+    var m = String(Math.floor(timerSec / 60)).padStart(2, "0");
+    var s = String(timerSec % 60).padStart(2, "0");
     document.getElementById("clock-display").textContent = m + ":" + s;
   }
 
@@ -982,8 +1090,12 @@
     renderClock();
   }
 
-  function toggleTimer() {
-    const btn = document.getElementById("clock-btn");
+  document.getElementById("btn-25m").addEventListener("click", function() { setTimerMins(25); });
+  document.getElementById("btn-50m").addEventListener("click", function() { setTimerMins(50); });
+  document.getElementById("clock-reset").addEventListener("click", function() { setTimerMins(25); });
+
+  document.getElementById("clock-btn").addEventListener("click", function() {
+    var btn = this;
     if (timerId) { clearInterval(timerId); timerId = null; btn.textContent = "Reanudar"; return; }
     btn.textContent = "Pausar";
     timerId = setInterval(function() {
@@ -998,71 +1110,102 @@
         btn.textContent = "Iniciar sesión";
       }
     }, 1000);
-  }
-
-  function resetTimer() { setTimerMins(25); }
+  });
 
   document.addEventListener("visibilitychange", function() {
     if (document.hidden && timerId && document.getElementById("strict-toggle").checked) {
       focusFails++;
       localStorage.setItem("jarvis_focus_fails", focusFails);
       document.getElementById("focus-fails").textContent = focusFails;
-      resetTimer();
+      setTimerMins(25);
     }
   });
 
-  function loadSpotify() {
-    const raw = document.getElementById("spotify-url").value.trim();
-    const match = raw.match(/playlist\/([a-zA-Z0-9]+)/);
+  function renderSpotify(id) {
+    if (!id) return;
+    var box = document.getElementById("spotify-embed");
+    box.textContent = "";
+    var ifr = document.createElement("iframe");
+    ifr.style.borderRadius = "12px";
+    ifr.src = "https://open.spotify.com/embed/playlist/" + id + "?theme=0";
+    ifr.width = "100%";
+    ifr.height = "152";
+    ifr.frameBorder = "0";
+    ifr.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+    box.appendChild(ifr);
+  }
+
+  document.getElementById("btn-spotify").addEventListener("click", function() {
+    var raw = document.getElementById("spotify-url").value.trim();
+    var match = raw.match(/playlist\/([a-zA-Z0-9]+)/);
     if (!match) return;
     localStorage.setItem("jarvis_spotify_id", match[1]);
     renderSpotify(match[1]);
-  }
-
-  function renderSpotify(id) {
-    if (!id) return;
-    document.getElementById("spotify-embed").innerHTML = '<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/' + id + '?theme=0" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>';
-  }
+  });
   renderSpotify(localStorage.getItem("jarvis_spotify_id"));
 
-  let exams = JSON.parse(localStorage.getItem("jarvis_exams") || "[]");
-  let tasks = JSON.parse(localStorage.getItem("jarvis_tasks") || "[]");
+  var exams = JSON.parse(localStorage.getItem("jarvis_exams") || "[]");
+  var tasks = JSON.parse(localStorage.getItem("jarvis_tasks") || "[]");
 
-  function addExam() {
-    const title = document.getElementById("exam-title").value.trim();
-    const date = document.getElementById("exam-date").value;
+  function renderAgenda() {
+    var now = new Date();
+    var exList = document.getElementById("exams-list");
+    exList.textContent = "";
+    exams.forEach(function(ex) {
+      var days = Math.ceil((new Date(ex.date) - now) / 86400000);
+      var row = document.createElement("div");
+      row.className = "list-row";
+      var sp = document.createElement("span");
+      sp.textContent = ex.title;
+      var st = document.createElement("strong");
+      st.style.fontFamily = "var(--font-mono)";
+      st.style.color = days <= 3 ? "var(--danger)" : "var(--lime)";
+      st.textContent = days + " d";
+      row.appendChild(sp);
+      row.appendChild(st);
+      exList.appendChild(row);
+    });
+
+    var tkList = document.getElementById("tasks-list");
+    tkList.textContent = "";
+    tasks.forEach(function(t) {
+      var row = document.createElement("div");
+      row.className = "list-row";
+      var sp = document.createElement("span");
+      sp.textContent = t.title;
+      var ch = document.createElement("span");
+      ch.className = "source-chip";
+      ch.textContent = t.tag;
+      row.appendChild(sp);
+      row.appendChild(ch);
+      tkList.appendChild(row);
+    });
+  }
+
+  document.getElementById("btn-add-exam").addEventListener("click", function() {
+    var title = document.getElementById("exam-title").value.trim();
+    var date = document.getElementById("exam-date").value;
     if (!title || !date) return;
     exams.push({ title: title, date: date });
     localStorage.setItem("jarvis_exams", JSON.stringify(exams));
     document.getElementById("exam-title").value = "";
     renderAgenda();
-  }
+  });
 
-  function addTask() {
-    const title = document.getElementById("task-title").value.trim();
-    const tag = document.getElementById("task-tag").value;
+  document.getElementById("btn-add-task").addEventListener("click", function() {
+    var title = document.getElementById("task-title").value.trim();
+    var tag = document.getElementById("task-tag").value;
     if (!title) return;
     tasks.push({ title: title, tag: tag });
     localStorage.setItem("jarvis_tasks", JSON.stringify(tasks));
     document.getElementById("task-title").value = "";
     renderAgenda();
-  }
-
-  function renderAgenda() {
-    const now = new Date();
-    document.getElementById("exams-list").innerHTML = exams.map(function(ex) {
-      const days = Math.ceil((new Date(ex.date) - now) / 86400000);
-      return '<div class="list-row"><span>' + escapeHtml(ex.title) + '</span><strong style="font-family:var(--font-mono); color:' + (days <= 3 ? "var(--danger)" : "var(--lime)") + ';">' + days + " d</strong></div>";
-    }).join("");
-
-    document.getElementById("tasks-list").innerHTML = tasks.map(function(t) {
-      return '<div class="list-row"><span>' + escapeHtml(t.title) + '</span><span class="source-chip">' + escapeHtml(t.tag) + "</span></div>";
-    }).join("");
-  }
+  });
 
   if (sessions.length === 0) createNewSession();
   else { renderHistory(); renderChat(); }
   renderAgenda();
+})();
 </script>
 </body>
 </html>
