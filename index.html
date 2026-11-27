@@ -5,25 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <title>Jarvis — Neural Desktop Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --bg: #0c1624;
       --bg-sidebar: #09111c;
-      --bg-surface: #111e30;
-      --bg-elevated: #16263d;
-      --border: rgba(148, 163, 184, 0.14);
-      --border-strong: rgba(56, 189, 248, 0.35);
+      --bg-surface: #132236;
+      --bg-elevated: #192c46;
+      --border: rgba(168, 184, 204, 0.14);
+      --border-strong: rgba(56, 189, 248, 0.38);
+      --inset-light: inset 0 1px 0 rgba(255, 255, 255, 0.06);
       --text: #f1f5f9;
-      --text-soft: #94a3b8;
-      --text-muted: #64748b;
+      --text-soft: #a8b8cc;
+      --text-muted: #70849e;
       --cyan: #38bdf8;
       --lime: #bef264;
       --teal: #2dd4bf;
       --danger: #fb7185;
-      --radius-lg: 16px;
-      --radius-md: 12px;
-      --radius-sm: 8px;
+      --font-display: "Fraunces", Georgia, serif;
+      --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, monospace;
+      --radius-lg: 18px;
+      --radius-md: 13px;
+      --radius-sm: 9px;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -33,9 +40,21 @@
       height: 100%;
       background: var(--bg);
       color: var(--text);
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.5;
+      font-family: var(--font-sans);
+      line-height: 1.55;
       overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Textura sutil editorial */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 99;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
     :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
@@ -44,18 +63,19 @@
 
     .app-shell {
       display: grid;
-      grid-template-columns: 260px 1fr 390px;
+      grid-template-columns: 268px 1fr 400px;
       height: 100vh;
       width: 100vw;
     }
 
+    /* SIDEBAR */
     .sidebar {
       background: var(--bg-sidebar);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      padding: 16px 12px;
-      gap: 14px;
+      padding: 18px 14px;
+      gap: 16px;
       overflow-y: auto;
     }
 
@@ -63,15 +83,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 6px;
+      padding: 2px 6px;
     }
 
     .brand-title {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
+      font-family: var(--font-display);
       font-weight: 600;
-      font-size: 15px;
+      font-size: 18px;
+      letter-spacing: -0.01em;
     }
 
     .brand-orb {
@@ -79,7 +101,13 @@
       height: 10px;
       border-radius: 50%;
       background: var(--lime);
-      box-shadow: 0 0 10px var(--lime);
+      box-shadow: 0 0 12px rgba(190, 242, 100, 0.75);
+    }
+
+    .version-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
     }
 
     .new-chat-btn {
@@ -87,22 +115,26 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 10px 12px;
+      min-height: 40px;
+      padding: 10px 14px;
       border-radius: var(--radius-md);
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.32);
-      color: var(--cyan);
-      font-size: 13px;
+      background: linear-gradient(180deg, rgba(190, 242, 100, 0.16), rgba(190, 242, 100, 0.08));
+      border: 1px solid rgba(190, 242, 100, 0.34);
+      box-shadow: var(--inset-light);
+      color: var(--lime);
+      font-size: 13.5px;
       font-weight: 600;
+      transition: transform 0.12s ease, background 0.18s ease;
     }
 
-    .new-chat-btn:hover { background: rgba(56, 189, 248, 0.2); }
+    .new-chat-btn:hover { background: rgba(190, 242, 100, 0.22); }
+    .new-chat-btn:active { transform: scale(0.985); }
 
     .nav-group { display: flex; flex-direction: column; gap: 4px; }
     .nav-label {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.09em;
       color: var(--text-muted);
       padding: 4px 8px;
       font-weight: 600;
@@ -112,21 +144,24 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 9px 10px;
+      min-height: 38px;
+      padding: 9px 11px;
       border-radius: var(--radius-sm);
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-soft);
-      font-size: 13px;
+      font-size: 13.5px;
       text-align: left;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
     .nav-item:hover { background: rgba(255, 255, 255, 0.04); color: var(--text); }
     .nav-item.active {
       background: var(--bg-surface);
       border-color: var(--border);
+      box-shadow: var(--inset-light);
       color: #ffffff;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
@@ -136,44 +171,48 @@
       background: transparent;
       border: none;
       color: var(--text-soft);
-      font-size: 12.5px;
+      font-size: 13px;
       text-align: left;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .history-btn:hover, .history-btn.active { background: rgba(255, 255, 255, 0.05); color: var(--text); }
+    .history-btn:hover, .history-btn.active { background: rgba(255, 255, 255, 0.06); color: #ffffff; }
 
     .server-card-mini {
       background: var(--bg-surface);
       border: 1px solid var(--border);
+      box-shadow: var(--inset-light);
       border-radius: var(--radius-md);
-      padding: 10px 12px;
+      padding: 12px;
       font-size: 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 9px;
     }
 
     .status-row { display: flex; align-items: center; justify-content: space-between; }
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
-    .dot.online { background: var(--lime); box-shadow: 0 0 8px var(--lime); }
-    .dot.sim { background: var(--cyan); }
+    .status-badge { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+    .dot.online { background: var(--lime); box-shadow: 0 0 10px var(--lime); }
+    .dot.sim { background: var(--cyan); box-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
 
+    /* PANEL CENTRAL */
     .main-stage {
       display: flex;
       flex-direction: column;
       height: 100vh;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.06), transparent 55%), var(--bg);
+      background:
+        radial-gradient(ellipse 75% 45% at 50% -8%, rgba(56, 189, 248, 0.09), transparent 65%),
+        radial-gradient(circle at 85% 90%, rgba(190, 242, 100, 0.04), transparent 45%),
+        var(--bg);
     }
 
     .topbar {
-      height: 54px;
+      height: 56px;
       border-bottom: 1px solid var(--border);
-      padding: 0 22px;
+      padding: 0 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -195,11 +234,12 @@
       font-weight: 500;
       background: var(--bg-surface);
       border: 1px solid var(--border);
-      padding: 5px 12px;
+      box-shadow: var(--inset-light);
+      padding: 5px 13px;
       border-radius: 99px;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
     }
 
     .view-panel { display: none; flex: 1; overflow-y: auto; padding: 24px; }
@@ -208,90 +248,143 @@
     .chat-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 24px 12px;
+      padding: 28px 24px 16px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      max-width: 820px;
+      gap: 24px;
+      max-width: 780px;
       width: 100%;
       margin: 0 auto;
     }
 
-    .empty-hero { margin: auto; text-align: center; max-width: 540px; padding: 24px; }
-    .empty-hero h1 { font-size: 26px; font-weight: 600; margin: 0 0 8px; }
-    .empty-hero p { color: var(--text-soft); font-size: 14px; margin: 0 0 22px; }
+    .empty-hero {
+      margin: auto;
+      text-align: center;
+      max-width: 580px;
+      padding: 20px;
+      animation: fadeUp 0.45s ease both;
+    }
 
-    .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-kicker {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--cyan);
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 4px 11px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+
+    .empty-hero h1 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin: 0 0 10px;
+      color: #ffffff;
+    }
+
+    .empty-hero p {
+      color: var(--text-soft);
+      font-size: 14.5px;
+      margin: 0 0 26px;
+      max-width: 48ch;
+      margin-inline: auto;
+    }
+
+    .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; text-align: left; }
     .starter-card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
+      box-shadow: var(--inset-light);
       border-radius: var(--radius-md);
-      padding: 13px 14px;
+      padding: 14px 16px;
+      transition: transform 0.15s ease, border-color 0.18s ease, background 0.18s ease;
     }
-    .starter-card:hover { border-color: var(--border-strong); background: var(--bg-elevated); }
-    .starter-card strong { display: block; font-size: 13px; color: #ffffff; margin-bottom: 3px; }
-    .starter-card span { font-size: 12px; color: var(--text-soft); }
+    .starter-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      background: var(--bg-elevated);
+    }
+    .starter-card strong { display: block; font-size: 13.5px; color: #ffffff; margin-bottom: 4px; }
+    .starter-card span { font-size: 12.5px; color: var(--text-soft); line-height: 1.45; display: block; }
 
-    .msg { display: flex; flex-direction: column; gap: 6px; max-width: 100%; }
+    /* MENSAJES */
+    .msg { display: flex; flex-direction: column; gap: 8px; max-width: 100%; animation: fadeUp 0.25s ease both; }
     .msg.user { align-self: flex-end; max-width: 78%; }
     .msg.user .bubble {
       background: var(--bg-elevated);
       border: 1px solid var(--border-strong);
-      border-radius: 16px 16px 4px 16px;
-      padding: 12px 16px;
-      font-size: 14px;
+      box-shadow: var(--inset-light);
+      border-radius: 18px 18px 4px 18px;
+      padding: 12px 17px;
+      font-size: 14.5px;
     }
-    .msg.ai { align-self: flex-start; width: 100%; }
-    .ai-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-soft); }
+    .msg.ai { align-self: flex-start; width: 100%; max-width: 68ch; }
+    .ai-meta { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--text-soft); }
 
     .trace-toggle {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(190, 242, 100, 0.08);
-      border: 1px solid rgba(190, 242, 100, 0.28);
+      background: rgba(190, 242, 100, 0.09);
+      border: 1px solid rgba(190, 242, 100, 0.3);
       color: var(--lime);
-      padding: 4px 10px;
+      padding: 4px 11px;
       border-radius: 99px;
-      font-size: 11.5px;
+      font-family: var(--font-mono);
+      font-size: 11px;
       font-weight: 500;
       font-variant-numeric: tabular-nums;
     }
+    .trace-toggle:hover { background: rgba(190, 242, 100, 0.17); }
 
     .trace-box {
       display: none;
-      background: rgba(9, 17, 28, 0.85);
+      background: rgba(9, 17, 28, 0.9);
       border: 1px solid var(--border);
       border-left: 2px solid var(--cyan);
       border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-size: 12px;
+      padding: 11px 14px;
+      font-size: 12.5px;
       color: var(--text-soft);
-      margin: 4px 0;
+      margin: 2px 0;
     }
     .trace-box.open { display: block; }
     .trace-step-line { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
     .trace-step-line strong { color: var(--cyan); }
-    .ai-body { font-size: 14.5px; line-height: 1.65; color: var(--text); white-space: pre-wrap; }
+    .ai-body { font-size: 15px; line-height: 1.72; color: var(--text); white-space: pre-wrap; }
     .sources-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
     .source-chip {
+      font-family: var(--font-mono);
       font-size: 11px;
       background: rgba(56, 189, 248, 0.1);
       border: 1px solid rgba(56, 189, 248, 0.25);
       color: var(--cyan);
-      padding: 2px 9px;
+      padding: 3px 9px;
       border-radius: 6px;
     }
 
-    .composer-wrap { padding: 12px 24px 20px; max-width: 820px; width: 100%; margin: 0 auto; flex-shrink: 0; }
+    /* COMPOSER */
+    .composer-wrap { padding: 12px 24px 22px; max-width: 780px; width: 100%; margin: 0 auto; flex-shrink: 0; }
     .composer {
       background: var(--bg-surface);
       border: 1px solid var(--border);
+      box-shadow: var(--inset-light), 0 12px 32px rgba(4, 9, 17, 0.45);
       border-radius: var(--radius-lg);
-      padding: 10px 12px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      transition: border-color 0.18s ease;
     }
     .composer:focus-within { border-color: var(--cyan); }
     .composer textarea {
@@ -299,126 +392,152 @@
       background: transparent;
       border: none;
       resize: none;
-      font-size: 14px;
-      min-height: 42px;
+      font-size: 14.5px;
+      min-height: 44px;
       max-height: 160px;
       outline: none;
+      line-height: 1.5;
     }
+    .composer textarea::placeholder { color: var(--text-muted); }
     .composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .mode-pills { display: flex; gap: 6px; flex-wrap: wrap; }
     .mode-chip {
-      font-size: 11.5px;
-      padding: 4px 10px;
+      font-size: 12px;
+      min-height: 30px;
+      padding: 4px 11px;
       border-radius: 99px;
-      background: rgba(12, 22, 36, 0.7);
+      background: rgba(12, 22, 36, 0.75);
       border: 1px solid var(--border);
       color: var(--text-soft);
+      transition: all 0.15s ease;
     }
+    .mode-chip:hover { color: #ffffff; border-color: rgba(168, 184, 204, 0.3); }
     .mode-chip.active {
       background: rgba(56, 189, 248, 0.16);
       border-color: var(--cyan);
       color: #ffffff;
-      font-weight: 500;
+      font-weight: 600;
     }
     .send-btn {
       background: var(--lime);
       color: #09111c;
       border: none;
       border-radius: 10px;
-      padding: 7px 16px;
-      font-size: 13px;
-      font-weight: 600;
+      min-height: 36px;
+      padding: 7px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      transition: transform 0.12s ease, opacity 0.15s ease;
     }
+    .send-btn:hover { opacity: 0.92; }
+    .send-btn:active { transform: scale(0.97); }
     .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+    /* INSPECTOR DERECHO */
     .inspector-aside {
       background: var(--bg-sidebar);
       border-left: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      padding: 16px;
-      gap: 14px;
+      padding: 18px 16px;
+      gap: 16px;
       overflow-y: auto;
     }
 
     .panel-card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
+      box-shadow: var(--inset-light);
       border-radius: var(--radius-lg);
-      padding: 14px;
+      padding: 15px;
     }
     .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-    .card-head h2 { margin: 0; font-size: 14px; font-weight: 600; color: #ffffff; }
-    .card-sub { margin: 0 0 10px; font-size: 12px; color: var(--text-soft); }
+    .card-head h2 { margin: 0; font-size: 14.5px; font-weight: 600; color: #ffffff; }
+    .card-sub { margin: 0 0 11px; font-size: 12.5px; color: var(--text-soft); }
 
     .nn-box {
-      background: #070e18;
+      background: radial-gradient(circle at 50% 50%, #0d1a2b, #070e18);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 6px 4px;
-      margin-bottom: 10px;
+      padding: 8px 4px;
+      margin-bottom: 11px;
     }
-    #nn-canvas { width: 100%; height: 250px; display: block; cursor: pointer; }
+    #nn-canvas { width: 100%; height: 256px; display: block; cursor: pointer; }
     .layer-labels {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       text-align: center;
-      font-size: 9.5px;
+      font-size: 10px;
       color: var(--text-soft);
-      border-top: 1px solid rgba(148, 163, 184, 0.12);
-      padding-top: 5px;
+      border-top: 1px solid rgba(168, 184, 204, 0.12);
+      padding-top: 6px;
     }
-    .layer-labels strong { display: block; color: var(--cyan); font-size: 10px; }
+    .layer-labels strong { display: block; font-family: var(--font-mono); color: var(--cyan); font-size: 10.5px; }
 
     .node-detail {
       background: rgba(12, 22, 36, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      font-size: 12px;
+      padding: 11px 13px;
+      font-size: 12.5px;
+      line-height: 1.5;
     }
     .node-detail strong { color: var(--lime); display: block; margin-bottom: 3px; }
 
-    .tele-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tele-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
     .tele-box {
-      background: rgba(12, 22, 36, 0.7);
+      background: rgba(12, 22, 36, 0.72);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 9px 10px;
+      padding: 10px 11px;
     }
     .tele-top {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--text-soft);
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       font-variant-numeric: tabular-nums;
     }
-    .tele-top span:last-child { color: #ffffff; font-weight: 600; }
-    .bar-track { height: 4px; background: rgba(148, 163, 184, 0.16); border-radius: 99px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
+    .tele-top span:last-child { font-family: var(--font-mono); color: #ffffff; font-weight: 600; }
+    .bar-track { height: 5px; background: rgba(168, 184, 204, 0.14); border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
 
-    .subview-grid { max-width: 760px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-    .clock-big { font-size: 56px; font-weight: 300; text-align: center; font-variant-numeric: tabular-nums; margin: 10px 0; }
+    /* VISTAS SECUNDARIAS */
+    .subview-grid { max-width: 740px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+    .clock-big {
+      font-family: var(--font-mono);
+      font-size: 56px;
+      font-weight: 500;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      margin: 12px 0;
+      letter-spacing: -0.03em;
+    }
     .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .btn-ui {
-      padding: 10px 14px;
+      min-height: 38px;
+      padding: 9px 14px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
       background: var(--bg-elevated);
+      box-shadow: var(--inset-light);
       font-size: 13px;
       font-weight: 500;
+      transition: background 0.15s ease;
     }
-    .btn-ui.lime { background: rgba(190, 242, 100, 0.15); border-color: rgba(190, 242, 100, 0.4); color: var(--lime); }
-    .btn-ui.cyan { background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: var(--cyan); }
+    .btn-ui:hover { background: #203756; }
+    .btn-ui.lime { background: rgba(190, 242, 100, 0.16); border-color: rgba(190, 242, 100, 0.4); color: var(--lime); font-weight: 600; }
+    .btn-ui.cyan { background: rgba(56, 189, 248, 0.16); border-color: rgba(56, 189, 248, 0.4); color: var(--cyan); font-weight: 600; }
 
     .input-ui {
       width: 100%;
+      min-height: 38px;
       background: rgba(12, 22, 36, 0.85);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       padding: 9px 12px;
-      font-size: 13px;
+      font-size: 13.5px;
       color: var(--text);
     }
 
@@ -426,19 +545,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 9px 12px;
+      padding: 10px 13px;
       background: rgba(12, 22, 36, 0.65);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      font-size: 13px;
-      margin-top: 6px;
+      font-size: 13.5px;
+      margin-top: 7px;
     }
 
+    /* MODAL */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(5, 10, 18, 0.78);
-      backdrop-filter: blur(6px);
+      background: rgba(5, 10, 18, 0.8);
+      backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -449,19 +569,27 @@
     .modal-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-strong);
+      box-shadow: var(--inset-light), 0 24px 60px rgba(0, 0, 0, 0.6);
       border-radius: var(--radius-lg);
       max-width: 440px;
       width: 100%;
-      padding: 20px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 13px;
     }
-    .modal-card h3 { margin: 0; font-size: 16px; }
-    .field-label { display: block; font-size: 12px; color: var(--text-soft); margin-bottom: 4px; }
+    .modal-card h3 { margin: 0; font-family: var(--font-display); font-size: 19px; }
+    .field-label { display: block; font-size: 12.5px; color: var(--text-soft); margin-bottom: 5px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
 
     @media (max-width: 1120px) {
-      .app-shell { grid-template-columns: 230px 1fr; }
+      .app-shell { grid-template-columns: 235px 1fr; }
       .inspector-aside { display: none; }
     }
     @media (max-width: 760px) {
@@ -474,14 +602,14 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="Navegación principal">
       <div class="brand-bar">
-        <div class="brand-title"><span class="brand-orb"></span><span>Jarvis Workspace</span></div>
-        <span style="font-size:11px; color:var(--text-muted);">v2.5</span>
+        <div class="brand-title"><span class="brand-orb"></span><span>Jarvis</span></div>
+        <span class="version-tag">v3.0</span>
       </div>
       <button type="button" class="new-chat-btn" onclick="createNewSession()">
         <span>+ Nueva consulta</span>
-        <span style="font-size:11px; opacity:0.8;">⌘K</span>
+        <span class="version-tag" style="color:var(--lime);">⌘K</span>
       </button>
       <div class="nav-group">
         <div class="nav-label">Espacios</div>
@@ -496,9 +624,9 @@
       <div class="server-card-mini">
         <div class="status-row">
           <span class="status-badge"><span class="dot sim" id="conn-dot"></span><span id="conn-label">Modo Simulación</span></span>
-          <span style="font-variant-numeric:tabular-nums; color:var(--lime);" id="mini-ping">-- ms</span>
+          <span class="version-tag" style="color:var(--lime);" id="mini-ping">-- ms</span>
         </div>
-        <button type="button" class="btn-ui cyan" style="padding:7px 10px; font-size:12px;" onclick="openConfigModal()">Conectar Oracle Cloud</button>
+        <button type="button" class="btn-ui cyan" style="padding:7px 10px; font-size:12.5px;" onclick="openConfigModal()">Conectar Oracle Cloud</button>
       </div>
     </aside>
 
@@ -508,16 +636,16 @@
           <button type="button" class="mobile-menu-btn" onclick="openConfigModal()">⚙ Nodo</button>
           <div class="model-pill"><span style="color:var(--cyan);">✦</span><span>Jarvis · Gemini 2.5 + ChromaDB 3r</span></div>
         </div>
-        <div style="font-size:12px; color:var(--text-soft); font-variant-numeric:tabular-nums;" id="chroma-badge">44+ docs indexados</div>
+        <div class="version-tag" style="color:var(--text-soft);" id="chroma-badge">44+ docs indexados</div>
       </header>
 
       <section id="panel-chat" class="view-panel active" style="padding:0;">
-        <div class="chat-scroll" id="chat-scroll"></div>
+        <div class="chat-scroll" id="chat-scroll" aria-live="polite"></div>
         <div class="composer-wrap">
           <form class="composer" onsubmit="handleSend(event)">
             <textarea id="prompt-input" rows="2" placeholder="Pregunta sobre tus apuntes de 3r, pide un /test o ejecuta /estado…" onkeydown="handleComposerKey(event)"></textarea>
             <div class="composer-footer">
-              <div class="mode-pills">
+              <div class="mode-pills" role="group" aria-label="Modo de razonamiento">
                 <button type="button" class="mode-chip active" data-mode="auto" onclick="setMode('auto', this)">Auto</button>
                 <button type="button" class="mode-chip" data-mode="rag" onclick="setMode('rag', this)">📚 Apuntes 3r (RAG)</button>
                 <button type="button" class="mode-chip" data-mode="exam" onclick="setMode('exam', this)">📝 Test / Esquema</button>
@@ -540,7 +668,7 @@
               </div>
             </div>
             <div class="clock-big" id="clock-display">25:00</div>
-            <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:rgba(251,113,133,0.08); border:1px solid rgba(251,113,133,0.25); border-radius:8px; margin-bottom:12px; font-size:12.5px; cursor:pointer;">
+            <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:rgba(251,113,133,0.08); border:1px solid rgba(251,113,133,0.25); border-radius:9px; margin-bottom:12px; font-size:13px; cursor:pointer;">
               <span>Modo estricto (reinicia si sales de la ventana)</span>
               <input type="checkbox" id="strict-toggle" checked style="accent-color:var(--danger); width:16px; height:16px;" />
             </label>
@@ -548,7 +676,7 @@
               <button type="button" class="btn-ui lime" id="clock-btn" onclick="toggleTimer()">Iniciar sesión</button>
               <button type="button" class="btn-ui" onclick="resetTimer()">Reiniciar</button>
             </div>
-            <p style="text-align:center; font-size:12px; color:var(--text-soft); margin:10px 0 0; font-variant-numeric:tabular-nums;">
+            <p style="text-align:center; font-size:12.5px; color:var(--text-soft); margin:12px 0 0; font-variant-numeric:tabular-nums;">
               Hoy: <strong id="focus-mins" style="color:#fff;">0</strong> min · Interrupciones: <strong id="focus-fails" style="color:var(--danger);">0</strong>
             </p>
           </div>
@@ -591,11 +719,11 @@
       </section>
     </main>
 
-    <aside class="inspector-aside">
+    <aside class="inspector-aside" aria-label="Inspector neuronal">
       <div class="panel-card">
         <div class="card-head">
           <h2>Proceso Lógico Neuronal</h2>
-          <span style="font-size:11px; color:var(--lime); font-variant-numeric:tabular-nums;" id="trace-ms-badge">En reposo</span>
+          <span class="version-tag" style="color:var(--lime);" id="trace-ms-badge">En reposo</span>
         </div>
         <p class="card-sub">Estados binarios (<strong style="color:var(--lime);">1</strong> activo · <strong style="color:var(--text-soft);">0</strong> reposo). Toca un nodo para inspeccionarlo.</p>
         <div class="nn-box">
@@ -617,9 +745,9 @@
       <div class="panel-card">
         <div class="card-head">
           <h2>Telemetría Oracle Cloud</h2>
-          <button type="button" class="btn-ui" style="padding:3px 9px; font-size:11px;" onclick="pollServerHealth()">Actualizar</button>
+          <button type="button" class="btn-ui" style="min-height:28px; padding:3px 10px; font-size:11.5px;" onclick="pollServerHealth()">Actualizar</button>
         </div>
-        <p class="card-sub" style="margin-bottom:8px;">Nodo Ubuntu ARM64 · 158.179.212.5</p>
+        <p class="card-sub" style="margin-bottom:9px;">Nodo Ubuntu ARM64 · 158.179.212.5</p>
         <div class="tele-grid">
           <div class="tele-box"><div class="tele-top"><span>CPU</span><span id="tele-cpu">--%</span></div><div class="bar-track"><div class="bar-fill" id="bar-cpu" style="width:14%; background:var(--cyan);"></div></div></div>
           <div class="tele-box"><div class="tele-top"><span>RAM</span><span id="tele-ram">-- GB</span></div><div class="bar-track"><div class="bar-fill" id="bar-ram" style="width:24%; background:var(--teal);"></div></div></div>
@@ -630,11 +758,11 @@
     </aside>
   </div>
 
-  <div class="modal-backdrop" id="config-modal">
+  <div class="modal-backdrop" id="config-modal" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="card-head">
-        <h3>Conexión con Servidor Oracle Cloud</h3>
-        <button type="button" class="btn-ui" style="padding:4px 9px;" onclick="closeConfigModal()">✕</button>
+        <h3>Conexión con Oracle Cloud</h3>
+        <button type="button" class="btn-ui" style="min-height:30px; padding:4px 10px;" onclick="closeConfigModal()">✕</button>
       </div>
       <p class="card-sub" style="margin:0;">Introduce la URL HTTPS de tu túnel y tu token de <code>jarvis_api.py</code>.</p>
       <div>
@@ -645,7 +773,7 @@
         <label class="field-label" for="cfg-token">Bearer Token (JARVIS_WEB_TOKEN)</label>
         <input id="cfg-token" class="input-ui" type="password" placeholder="jarvis2026" />
       </div>
-      <div id="cfg-feedback" style="font-size:12px; color:var(--lime);"></div>
+      <div id="cfg-feedback" style="font-size:12.5px; color:var(--lime);"></div>
       <div class="btn-row">
         <button type="button" class="btn-ui lime" onclick="saveServerConfig()">Guardar y probar</button>
         <button type="button" class="btn-ui" onclick="clearServerConfig()">Usar modo local</button>
@@ -665,6 +793,18 @@
       if (ch === '"') return String.fromCharCode(38) + "quot;";
       return String.fromCharCode(38) + "#39;";
     });
+  }
+
+  function getGreetingContext() {
+    const h = new Date().getHours();
+    const sal = h < 13 ? "Buenos días, David" : (h < 20 ? "Buenas tardes, David" : "Buenas noches, David");
+    const savedExams = JSON.parse(localStorage.getItem("jarvis_exams") || "[]");
+    if (savedExams.length > 0) {
+      const next = savedExams[0];
+      const days = Math.ceil((new Date(next.date) - new Date()) / 86400000);
+      if (days >= 0) return { title: sal + ".", sub: "Faltan " + days + " días para " + next.title + ". Tus apuntes de 3r están listos." };
+    }
+    return { title: sal + ".", sub: "Consulta tus apuntes de 3.º de Biología en ChromaDB, genera tests o inspecciona en vivo cómo razona cada capa neuronal." };
   }
 
   const LAYERS = [
@@ -698,6 +838,7 @@
 
   const nnCanvas = document.getElementById("nn-canvas");
   const nnCtx = nnCanvas.getContext("2d");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let activeNodeIds = new Set(["in_txt", "auth", "intent", "chroma", "rag_merge", "gemini", "out_chat"]);
   let selectedNodeId = null;
   let computedNodes = [];
@@ -705,8 +846,8 @@
   function computeLayout() {
     const rect = nnCanvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    const w = rect.width || 350;
-    const h = 250;
+    const w = rect.width || 355;
+    const h = 256;
     nnCanvas.width = w * dpr;
     nnCanvas.height = h * dpr;
     nnCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -718,16 +859,16 @@
       const x = padX + lIdx * stepX;
       const stepY = h / (layer.length + 1);
       layer.forEach(function(node, nIdx) {
-        computedNodes.push(Object.assign({}, node, { layer: lIdx, x: x, y: stepY * (nIdx + 1), r: 14 }));
+        computedNodes.push(Object.assign({}, node, { layer: lIdx, x: x, y: stepY * (nIdx + 1), r: 14.5 }));
       });
     });
   }
 
   function renderNN(ts) {
-    const w = nnCanvas.clientWidth || 350;
-    const h = 250;
+    const w = nnCanvas.clientWidth || 355;
+    const h = 256;
     nnCtx.clearRect(0, 0, w, h);
-    const pulseProgress = (ts * 0.0007) % 1;
+    const pulseProgress = reduceMotion ? 0.5 : (ts * 0.00065) % 1;
 
     for (let i = 0; i < computedNodes.length; i++) {
       const a = computedNodes[i];
@@ -739,14 +880,15 @@
         nnCtx.moveTo(a.x, a.y);
         const cx = (a.x + b.x) / 2;
         nnCtx.bezierCurveTo(cx, a.y, cx, b.y, b.x, b.y);
-        nnCtx.strokeStyle = bothActive ? "rgba(56, 189, 248, 0.55)" : "rgba(148, 163, 184, 0.1)";
-        nnCtx.lineWidth = bothActive ? 1.6 : 0.8;
+        nnCtx.strokeStyle = bothActive ? "rgba(56, 189, 248, 0.52)" : "rgba(168, 184, 204, 0.09)";
+        nnCtx.lineWidth = bothActive ? 1.6 : 0.85;
         nnCtx.stroke();
 
-        if (bothActive) {
+        if (bothActive && !reduceMotion) {
           const t = (pulseProgress + a.layer * 0.22) % 1;
-          const px = (1 - t) * a.x + t * b.x;
-          const py = (1 - t) * a.y + t * b.y;
+          const mt = 1 - t;
+          const px = mt * mt * mt * a.x + 3 * mt * mt * t * cx + 3 * mt * t * t * cx + t * t * t * b.x;
+          const py = mt * mt * mt * a.y + 3 * mt * mt * t * a.y + 3 * mt * t * t * b.y + t * t * t * b.y;
           nnCtx.beginPath();
           nnCtx.arc(px, py, 2.3, 0, Math.PI * 2);
           nnCtx.fillStyle = "#bef264";
@@ -758,23 +900,31 @@
     computedNodes.forEach(function(n) {
       const isOn = activeNodeIds.has(n.id);
       const isSel = selectedNodeId === n.id;
+
+      if (isOn) {
+        nnCtx.beginPath();
+        nnCtx.arc(n.x, n.y, n.r + 4.5, 0, Math.PI * 2);
+        nnCtx.fillStyle = "rgba(56, 189, 248, 0.09)";
+        nnCtx.fill();
+      }
+
       nnCtx.beginPath();
       nnCtx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-      nnCtx.fillStyle = isOn ? "rgba(56, 189, 248, 0.22)" : "#0c1624";
+      nnCtx.fillStyle = isOn ? "rgba(56, 189, 248, 0.2)" : "#0b1523";
       nnCtx.fill();
       nnCtx.lineWidth = isSel ? 2.4 : 1.5;
-      nnCtx.strokeStyle = isSel ? "#bef264" : (isOn ? "#38bdf8" : "rgba(148, 163, 184, 0.28)");
+      nnCtx.strokeStyle = isSel ? "#bef264" : (isOn ? "#38bdf8" : "rgba(168, 184, 204, 0.26)");
       nnCtx.stroke();
 
-      nnCtx.fillStyle = isOn ? "#bef264" : "#64748b";
-      nnCtx.font = "600 11px Inter, system-ui, sans-serif";
+      nnCtx.fillStyle = isOn ? "#bef264" : "#70849e";
+      nnCtx.font = "600 11px 'JetBrains Mono', monospace";
       nnCtx.textAlign = "center";
       nnCtx.textBaseline = "middle";
       nnCtx.fillText(isOn ? "1" : "0", n.x, n.y);
 
-      nnCtx.fillStyle = isOn ? "#f1f5f9" : "#64748b";
-      nnCtx.font = "500 9.5px Inter, system-ui, sans-serif";
-      nnCtx.fillText(n.short, n.x, n.y + n.r + 9);
+      nnCtx.fillStyle = isOn ? "#f1f5f9" : "#70849e";
+      nnCtx.font = "500 9.5px 'Plus Jakarta Sans', sans-serif";
+      nnCtx.fillText(n.short, n.x, n.y + n.r + 10);
     });
 
     requestAnimationFrame(renderNN);
@@ -901,14 +1051,15 @@
     const scroll = document.getElementById("chat-scroll");
     const session = sessions.find(function(s) { return s.id === currentSessionId; });
     if (!session || session.messages.length === 0) {
-      scroll.innerHTML = '<div class="empty-hero"><h1>Jarvis Neural Workspace</h1><p>Consulta tus apuntes de 3.º de Biología en ChromaDB, genera tests o inspecciona en vivo cómo razona cada capa neuronal.</p><div class="prompt-grid"><button type="button" class="starter-card" onclick="quickPrompt(\'/repaso Regulación del ciclo celular y ciclinas\', \'rag\')"><strong>📚 Repaso RAG de 3r</strong><span>Busca en tus apuntes de Drive y sintetiza conceptos clave</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'/test Fotosíntesis C4 y CAM (5 preguntas)\', \'exam\')"><strong>📝 Generar Test de Examen</strong><span>Crea preguntas tipo test con explicación razonada</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'/estado\', \'workspace\')"><strong>⚡ Telemetría del Nodo</strong><span>Comprueba servicios activos, ChromaDB y latencia</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'Explícame cuándo usar ANOVA de dos factores frente a Kruskal-Wallis en R\', \'auto\')"><strong>📊 Bioestadística en R</strong><span>Contraste metodológico directo para prácticas</span></button></div></div>';
+      const hero = getGreetingContext();
+      scroll.innerHTML = '<div class="empty-hero"><span class="hero-kicker">ORACLE ARM64 · CHROMADB 3R</span><h1>' + escapeHtml(hero.title) + '</h1><p>' + escapeHtml(hero.sub) + '</p><div class="prompt-grid"><button type="button" class="starter-card" onclick="quickPrompt(\'/repaso Regulación del ciclo celular y ciclinas\', \'rag\')"><strong>📚 Repaso RAG de 3r</strong><span>Busca en tus apuntes de Drive y sintetiza conceptos clave</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'/test Fotosíntesis C4 y CAM (5 preguntas)\', \'exam\')"><strong>📝 Generar Test de Examen</strong><span>Crea preguntas tipo test con explicación razonada</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'/estado\', \'workspace\')"><strong>⚡ Telemetría del Nodo</strong><span>Comprueba servicios activos, ChromaDB y latencia</span></button><button type="button" class="starter-card" onclick="quickPrompt(\'Explícame cuándo usar ANOVA de dos factores frente a Kruskal-Wallis en R\', \'auto\')"><strong>📊 Bioestadística en R</strong><span>Contraste metodológico directo para prácticas</span></button></div></div>';
       return;
     }
 
     scroll.innerHTML = session.messages.map(function(m, idx) {
       if (m.role === "user") return '<div class="msg user"><div class="bubble">' + escapeHtml(m.text) + "</div></div>";
       const stepsHtml = (m.trace && m.trace.steps ? m.trace.steps : []).map(function(st) {
-        return '<div class="trace-step-line"><span><strong>' + escapeHtml(st.label) + ":</strong> " + escapeHtml(st.detail) + '</span><span style="font-variant-numeric:tabular-nums;">' + st.ms + " ms</span></div>";
+        return '<div class="trace-step-line"><span><strong>' + escapeHtml(st.label) + ":</strong> " + escapeHtml(st.detail) + '</span><span style="font-family:var(--font-mono);">' + st.ms + " ms</span></div>";
       }).join("");
       const sourcesHtml = (m.sources || []).map(function(src) { return '<span class="source-chip">📄 ' + escapeHtml(src) + "</span>"; }).join("");
       return '<div class="msg ai"><div class="ai-meta"><strong style="color:#fff;">Jarvis</strong>' + (m.trace ? '<button type="button" class="trace-toggle" onclick="toggleTrace(' + idx + ')">◉ Proceso neuronal (' + m.trace.total_ms + " ms)</button>" : "") + "</div>" + (m.trace ? '<div class="trace-box" id="trace-box-' + idx + '">' + stepsHtml + "</div>" : "") + '<div class="ai-body">' + escapeHtml(m.text) + "</div>" + (sourcesHtml ? '<div class="sources-row">' + sourcesHtml + "</div>" : "") + "</div>";
@@ -964,7 +1115,7 @@
         if (!res.ok) throw new Error("Error HTTP " + res.status);
         result = await res.json();
       } else {
-        await new Promise(function(r) { setTimeout(r, 400); });
+        await new Promise(function(r) { setTimeout(r, 380); });
         const active = [prompt.startsWith("/") ? "in_cmd" : "in_txt", "auth", "intent", "hist", "profile", "gemini", "out_chat"];
         if (currentMode === "rag" || currentMode === "auto") active.push("chroma", "drive", "rag_merge", "rigor");
         if (currentMode === "exam") active.push("chroma", "rag_merge", "out_test");
@@ -974,11 +1125,11 @@
           sources: currentMode === "rag" ? ["Apuntes_3r_Drive.md"] : [],
           trace: {
             active_nodes: active,
-            total_ms: 400,
+            total_ms: 380,
             steps: [
               { node: "auth", label: "Auth ID", detail: "Identidad verificada", ms: 4 },
               { node: "intent", label: "Router Intent", detail: "Modo " + currentMode.toUpperCase(), ms: 11 },
-              { node: "gemini", label: "Gemini 2.5 Flash", detail: "Síntesis generativa", ms: 385 }
+              { node: "gemini", label: "Gemini 2.5 Flash", detail: "Síntesis generativa", ms: 365 }
             ]
           }
         };
@@ -1077,6 +1228,7 @@
     localStorage.setItem("jarvis_exams", JSON.stringify(exams));
     document.getElementById("exam-title").value = "";
     renderAgenda();
+    renderChat();
   }
 
   function addTask() {
@@ -1093,7 +1245,7 @@
     const now = new Date();
     document.getElementById("exams-list").innerHTML = exams.map(function(ex) {
       const days = Math.ceil((new Date(ex.date) - now) / 86400000);
-      return '<div class="list-row"><span>' + escapeHtml(ex.title) + '</span><strong style="color:' + (days <= 3 ? "var(--danger)" : "var(--lime)") + '; font-variant-numeric:tabular-nums;">' + days + " d</strong></div>";
+      return '<div class="list-row"><span>' + escapeHtml(ex.title) + '</span><strong style="font-family:var(--font-mono); color:' + (days <= 3 ? "var(--danger)" : "var(--lime)") + ';">' + days + " d</strong></div>";
     }).join("");
 
     document.getElementById("tasks-list").innerHTML = tasks.map(function(t) {
